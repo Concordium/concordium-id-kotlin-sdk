@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Concordium Sdk App"
 include(":app")
+include(":concordium-sdk")
