@@ -19,7 +19,7 @@ import com.concordium.sdk.R
 import com.concordium.sdk.ui.model.StepItem
 import com.concordium.sdk.ui.theme.ConcordiumSdkAppTheme
 
-class ConcordiumSdkActivity : ComponentActivity() {
+internal class ConcordiumSdkActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

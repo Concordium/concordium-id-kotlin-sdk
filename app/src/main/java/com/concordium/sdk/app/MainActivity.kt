@@ -1,6 +1,5 @@
 package com.concordium.sdk.app
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.concordium.sdk.api.ConcordiumIDAppPopup
 import com.concordium.sdk.app.ui.theme.ConcordiumSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Spacing
-import com.concordium.sdk.ui.ConcordiumSdkActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,14 +31,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ConcordiumScreen(
                         content = stringResource(R.string.app_name),
-                        callback = {
-                            startActivity(
-                                Intent(
-                                    this,
-                                    ConcordiumSdkActivity::class.java,
-                                )
-                            )
-                        },
+                        callback = {},
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -68,9 +60,15 @@ fun ConcordiumScreen(
             text = content,
             modifier = modifier
         )
-        Button(onClick = callback) {
+        Button(onClick = { ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup() }) {
             Text(
-                text = stringResource(R.string.open_sdk_popup),
+                text = stringResource(R.string.open_deeplink_popup),
+            )
+        }
+
+        Button(onClick = { ConcordiumIDAppPopup.invokeIdAppActionsPopup() }) {
+            Text(
+                text = stringResource(R.string.open_actions_popup),
             )
         }
     }

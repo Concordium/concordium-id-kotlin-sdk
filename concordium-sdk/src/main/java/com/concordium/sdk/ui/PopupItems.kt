@@ -268,7 +268,6 @@ private fun CircularBox(
     }
 }
 
-
 @Composable
 internal fun PlayStoreSection(
     infoText: String,
