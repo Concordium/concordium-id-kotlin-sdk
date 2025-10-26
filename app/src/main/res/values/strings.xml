@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Concordium Sdk App</string>
+    <string name="open_sdk_popup">Open popup</string>
+
 </resources>
