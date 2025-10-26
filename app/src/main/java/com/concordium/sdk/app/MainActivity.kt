@@ -1,5 +1,6 @@
 package com.concordium.sdk.app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.concordium.sdk.app.ui.theme.ConcordiumSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Spacing
+import com.concordium.sdk.ui.ConcordiumSdkActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +33,12 @@ class MainActivity : ComponentActivity() {
                     ConcordiumScreen(
                         content = stringResource(R.string.app_name),
                         callback = {
+                            startActivity(
+                                Intent(
+                                    this,
+                                    ConcordiumSdkActivity::class.java,
+                                )
+                            )
                         },
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -45,6 +54,9 @@ fun ConcordiumScreen(
     callback: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    LaunchedEffect(Unit) {
+        callback()
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
