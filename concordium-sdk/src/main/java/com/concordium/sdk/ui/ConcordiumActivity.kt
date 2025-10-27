@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.concordium.sdk.ui
 
 import android.content.Context
@@ -8,12 +10,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,15 +64,47 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ConcordiumSdkAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SdkScreen(
-                        uiState = uiState,
-                        onPopupClose = { this.finish() },
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                SdkBottomSheet(
+                    uiState = uiState,
+                    onPopupClose = { this.finish() },
+                )
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    SdkScreen(
+//                        uiState = uiState,
+//                        onPopupClose = { this.finish() },
+//                        modifier = Modifier.padding(innerPadding)
+//                    )
+//                }
             }
         }
+    }
+}
+
+@Composable
+internal fun SdkBottomSheet(
+    uiState: UiState,
+    onPopupClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    onCreate: () -> Unit = {},
+    onRecover: () -> Unit = {},
+) {
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = { },
+        sheetState = sheetState,
+        modifier = Modifier.wrapContentSize() // 90% of screen height
+    ) {
+        SdkScreen(
+            uiState = uiState,
+            onPopupClose = onPopupClose,
+            modifier = modifier,
+            onCreate = onCreate,
+            onRecover = onRecover,
+        )
     }
 }
 
@@ -78,7 +117,7 @@ internal fun SdkScreen(
     onRecover: () -> Unit = {},
 ) {
     Column(
-        modifier.fillMaxSize(),
+        modifier.fillMaxWidth(),
     ) {
         HeaderSection(onClose = onPopupClose)
         StepperSection(
