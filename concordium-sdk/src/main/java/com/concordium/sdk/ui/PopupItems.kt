@@ -1,6 +1,6 @@
 package com.concordium.sdk.ui
 
-import android.webkit.WebView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,10 +40,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import androidx.compose.ui.viewinterop.AndroidView
 import com.concordium.sdk.R
 import com.concordium.sdk.common.toDp
 import com.concordium.sdk.common.toPixels
+import com.concordium.sdk.ui.model.AccountAction
 import com.concordium.sdk.ui.model.StepItem
 import com.concordium.sdk.ui.theme.Black
 import com.concordium.sdk.ui.theme.Blue
@@ -119,28 +120,150 @@ internal fun AccountSetupSection(instruction: String, modifier: Modifier = Modif
 }
 
 @Composable
-fun QRCodeWebView(content: String) {
-    AndroidView(factory = { context ->
-        WebView(context).apply {
-            settings.javaScriptEnabled = true
-            loadDataWithBaseURL(
-                null, """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-                </head>
-                <body>
-                    <div id="qrcode"></div>
-                    <script>
-                        new QRCode(document.getElementById("qrcode"), "$content");
-                    </script>
-                </body>
-                </html>
-            """.trimIndent(), "text/html", "UTF-8", null
+fun QRCodeSection(deepLinkInvoke: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(White)
+            .padding(
+                horizontal = 32.dp,
+                vertical = 16.dp
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(32.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.message_complete_setup_in_id_App),
+            style = Typography.headlineMedium,
+            textAlign = TextAlign.Center,
+        )
+        Box(
+            modifier
+                .size(200.dp)
+                .background(Grayish)
+        )
+        Button(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Blue,
+                contentColor = Color.White
+            ),
+            onClick = {}) {
+            Text(
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                text = "Open {IDApp}",
+                style = Typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                )
             )
         }
-    })
+    }
+}
+
+@Composable
+fun IdVerificationSection(
+    accountAction: AccountAction,
+    onCreate: () -> Unit,
+    onRecover: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(White)
+            .padding(
+                horizontal = 32.dp,
+                vertical = 16.dp
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(32.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.message_only_after_id_verification),
+            style = Typography.headlineMedium,
+            textAlign = TextAlign.Center,
+        )
+        when (accountAction) {
+            AccountAction.Recover -> {
+                CtaContainer(
+                    ctaText = stringResource(R.string.recover),
+                    onClick = onRecover
+                )
+            }
+
+            is AccountAction.Create -> {
+                CtaContainer(
+                    ctaText = stringResource(R.string.create_new_account),
+                    onClick = onCreate
+                )
+            }
+
+            else -> {
+                Column {
+                    CtaContainer(
+                        ctaText = stringResource(R.string.create_new_account),
+                        onClick = onCreate
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    RecoverCta(
+                        ctaText = stringResource(R.string.recover),
+                        onClick = onRecover
+                    )
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+private fun CtaContainer(ctaText: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Blue,
+            contentColor = Color.White
+        ),
+        onClick = onClick
+    ) {
+        Text(
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+            text = ctaText,
+            style = Typography.bodyMedium.copy(
+                fontWeight = FontWeight.Bold,
+            )
+        )
+    }
+}
+
+@Composable
+private fun RecoverCta(ctaText: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    OutlinedButton(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        ),
+        border = BorderStroke(
+            width = 2.dp,
+            color = Black
+        ),
+        onClick = onClick
+    ) {
+        Text(
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+            text = ctaText,
+            style = Typography.bodyMedium.copy(
+                fontWeight = FontWeight.Bold,
+            )
+        )
+    }
 }
 
 @Composable
@@ -150,7 +273,7 @@ internal fun StepperView(
     lineColor: Color = Black,
     filledColor: Color = Blue,
     radiusInDp: Dp = 8.dp,
-    gapInDp: Dp = 72.dp,
+    gapInDp: Dp = 90.dp,
 ) {
     val gap = gapInDp.toPixels()
     val width = gap * items.size
@@ -171,15 +294,15 @@ internal fun StepperView(
                 val currItem = items[it]
                 offsetX += gap
 
-                val color = if (currItem.completed) filledColor else lineColor
-                val style = if (currItem.completed) {
+                val color = if (currItem.selected) filledColor else lineColor
+                val style = if (currItem.selected) {
                     Fill
                 } else {
                     Stroke(
                         width = strokeWidth,
                     )
                 }
-                val circleRadius = if (currItem.completed) radius else (radius - strokeWidth)
+                val circleRadius = if (currItem.selected) radius else (radius - strokeWidth)
 
                 drawCircle(
                     color = color,
@@ -211,8 +334,8 @@ internal fun StepperView(
                     text = currItem.label,
                     style = Typography.bodySmall.copy(
                         textAlign = TextAlign.Center,
-                        fontWeight = if (currItem.completed) FontWeight.Bold else FontWeight.Normal,
-                        color = if (currItem.completed) Black else Black.copy(alpha = 0.7f)
+                        fontWeight = if (currItem.selected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (currItem.selected) Black else Black.copy(alpha = 0.7f)
                     ),
                 )
             }
@@ -316,6 +439,8 @@ internal fun SdkPopUpPreview() {
             codeText = "1236",
             instruction = stringResource(R.string.message_match_code_in_IDapp)
         )
-        AccountSetupSection(instruction = stringResource(R.string.message_complete_setup_in_ID_App))
+        AccountSetupSection(instruction = stringResource(R.string.message_match_code_in_IDapp))
+
+        RecoverCta(ctaText = "Recover", onClick = {})
     }
 }
