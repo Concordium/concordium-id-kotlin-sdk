@@ -124,7 +124,6 @@ fun QRCodeSection(deepLinkInvoke: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(White)
             .padding(
                 horizontal = 32.dp,
                 vertical = 16.dp
@@ -172,7 +171,6 @@ fun IdVerificationSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(White)
             .padding(
                 horizontal = 32.dp,
                 vertical = 16.dp

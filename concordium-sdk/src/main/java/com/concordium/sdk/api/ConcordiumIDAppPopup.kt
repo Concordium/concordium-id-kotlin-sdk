@@ -11,6 +11,7 @@ object ConcordiumIDAppPopup {
         val intent = ConcordiumSdkActivity.createIntent(
             context = context,
             step = UserJourneyStep.IdVerification.name,
+            code = "23DE"
         ).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }

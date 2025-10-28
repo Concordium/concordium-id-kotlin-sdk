@@ -4,11 +4,14 @@ package com.concordium.sdk.ui
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -18,10 +21,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +51,7 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
                 putExtra(KEY_ACTION, action)
                 putExtra(KEY_STEP, step)
                 putExtra(KEY_CODE, code)
+                addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             }
     }
 
@@ -58,6 +60,17 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_OPEN,
+                0,
+                0,
+            )
+        } else {
+            overridePendingTransition(0, 0)
+        }
+
         if (savedInstanceState == null) {
             viewModel.initialize(intent)
         }
@@ -66,7 +79,7 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
             ConcordiumSdkAppTheme {
                 SdkBottomSheet(
                     uiState = uiState,
-                    onPopupClose = { this.finish() },
+                    onPopupClose = { this@ConcordiumSdkActivity.finish() },
                 )
 //                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                    SdkScreen(
@@ -78,6 +91,19 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun finish() {
+        super.finish()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_CLOSE,
+                0, // Enter animation
+                0  // Exit animation
+            )
+        } else {
+            overridePendingTransition(0, 0)
+        }
+    }
 }
 
 @Composable
@@ -85,26 +111,32 @@ internal fun SdkBottomSheet(
     uiState: UiState,
     onPopupClose: () -> Unit,
     modifier: Modifier = Modifier,
+    showBottomSheet: Boolean = true,
     onCreate: () -> Unit = {},
     onRecover: () -> Unit = {},
 ) {
-    var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true,
     )
 
-    ModalBottomSheet(
-        onDismissRequest = { },
-        sheetState = sheetState,
-        modifier = Modifier.wrapContentSize() // 90% of screen height
-    ) {
-        SdkScreen(
-            uiState = uiState,
-            onPopupClose = onPopupClose,
-            modifier = modifier,
-            onCreate = onCreate,
-            onRecover = onRecover,
-        )
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = onPopupClose,
+            sheetState = sheetState,
+            dragHandle = null,
+            modifier = Modifier.wrapContentSize() // 90% of screen height
+        ) {
+            BackHandler(enabled = true) {
+                // Do nothing (ignore back press)
+            }
+            SdkScreen(
+                uiState = uiState,
+                onPopupClose = onPopupClose,
+                modifier = modifier,
+                onCreate = onCreate,
+                onRecover = onRecover,
+            )
+        }
     }
 }
 
@@ -117,7 +149,7 @@ internal fun SdkScreen(
     onRecover: () -> Unit = {},
 ) {
     Column(
-        modifier.fillMaxWidth(),
+        modifier.fillMaxWidth().background(White),
     ) {
         HeaderSection(onClose = onPopupClose)
         StepperSection(
