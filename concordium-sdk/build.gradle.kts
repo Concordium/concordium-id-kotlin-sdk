@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.ui.graphics)
+    implementation("com.google.zxing:core:3.5.1")
 
     testImplementation(libs.junit)
     debugImplementation(libs.androidx.ui.tooling)

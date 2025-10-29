@@ -140,11 +140,7 @@ fun QRCodeSection(
             style = Typography.headlineMedium,
             textAlign = TextAlign.Center,
         )
-        Box(
-            modifier
-                .size(200.dp)
-                .background(Grayish)
-        )
+        QRCodeDisplay(walletConnectUri = walletConnectUri)
         Button(
             modifier = Modifier
                 .fillMaxWidth(),
