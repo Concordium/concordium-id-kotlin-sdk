@@ -120,7 +120,7 @@ internal fun AccountSetupSection(instruction: String, modifier: Modifier = Modif
 }
 
 @Composable
-fun QRCodeSection(
+internal fun QRCodeSection(
     walletConnectUri: String,
     deepLinkInvoke: () -> Unit,
     modifier: Modifier = Modifier
@@ -162,10 +162,10 @@ fun QRCodeSection(
 }
 
 @Composable
-fun IdVerificationSection(
+internal fun IdVerificationSection(
     accountAction: AccountAction,
-    onCreate: () -> Unit,
-    onRecover: () -> Unit,
+    onCreateAccount: () -> Unit,
+    onRecoverAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -185,16 +185,16 @@ fun IdVerificationSection(
         )
         when (accountAction) {
             AccountAction.Recover -> {
-                CtaContainer(
+                RecoverCta(
                     ctaText = stringResource(R.string.recover),
-                    onClick = onRecover
+                    onClick = onRecoverAccount
                 )
             }
 
             is AccountAction.Create -> {
                 CtaContainer(
                     ctaText = stringResource(R.string.create_new_account),
-                    onClick = onCreate
+                    onClick = onCreateAccount
                 )
             }
 
@@ -202,12 +202,12 @@ fun IdVerificationSection(
                 Column {
                     CtaContainer(
                         ctaText = stringResource(R.string.create_new_account),
-                        onClick = onCreate
+                        onClick = onCreateAccount
                     )
                     Spacer(Modifier.height(16.dp))
                     RecoverCta(
                         ctaText = stringResource(R.string.recover),
-                        onClick = onRecover
+                        onClick = onRecoverAccount
                     )
                 }
             }

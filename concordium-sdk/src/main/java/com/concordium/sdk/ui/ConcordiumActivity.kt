@@ -127,8 +127,8 @@ internal fun SdkBottomSheet(
     onPopupClose: () -> Unit,
     modifier: Modifier = Modifier,
     showBottomSheet: Boolean = true,
-    onCreate: () -> Unit = {},
-    onRecover: () -> Unit = {},
+    onCreateAccount: () -> Unit = {},
+    onRecoverAccount: () -> Unit = {},
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
@@ -148,8 +148,8 @@ internal fun SdkBottomSheet(
                 uiState = uiState,
                 onPopupClose = onPopupClose,
                 modifier = modifier,
-                onCreate = onCreate,
-                onRecover = onRecover,
+                onCreateAccount = onCreateAccount,
+                onRecoverAccount = onRecoverAccount,
             )
         }
     }
@@ -160,8 +160,8 @@ internal fun SdkScreen(
     uiState: UiState,
     onPopupClose: () -> Unit,
     modifier: Modifier = Modifier,
-    onCreate: () -> Unit = {},
-    onRecover: () -> Unit = {},
+    onCreateAccount: () -> Unit = {},
+    onRecoverAccount: () -> Unit = {},
 ) {
     Column(
         modifier
@@ -177,8 +177,8 @@ internal fun SdkScreen(
             userJourneyStep = uiState.journeyStep,
             accountAction = uiState.accountAction,
             walletConnectUri = uiState.walletConnectUri,
-            onCreate = onCreate,
-            onRecover = onRecover,
+            onCreateAccount = onCreateAccount,
+            onRecoverAccount = onRecoverAccount,
         )
         BottomSection(
             step = uiState.journeyStep, accountAction = uiState.accountAction
@@ -191,8 +191,8 @@ internal fun ContentSection(
     userJourneyStep: UserJourneyStep,
     accountAction: AccountAction,
     walletConnectUri: String = "",
-    onCreate: () -> Unit = {},
-    onRecover: () -> Unit = {},
+    onCreateAccount: () -> Unit = {},
+    onRecoverAccount: () -> Unit = {},
 ) {
     val context = LocalContext.current
     when (userJourneyStep) {
@@ -203,7 +203,7 @@ internal fun ContentSection(
         }
 
         UserJourneyStep.IdVerification -> IdVerificationSection(
-            accountAction = accountAction, onCreate = onCreate, onRecover = onRecover
+            accountAction = accountAction, onCreateAccount = onCreateAccount, onRecoverAccount = onRecoverAccount
         )
 
         UserJourneyStep.Account -> {}
