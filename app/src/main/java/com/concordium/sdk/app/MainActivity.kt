@@ -36,6 +36,10 @@ import com.concordium.sdk.app.ui.theme.ConcordiumSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Spacing
 import com.concordium.sdk.app.ui.theme.Typography
 
+private const val walletConnectUri =
+    "wc:2b4e5df1-91e3-4c62-9d0a-dc2318a1f2d2@2?relay-protocol=irn&symKey=dcf9e8f542e24435b7d4a6785a1e8b32e2b03728f6b6a8a5c6e4d1b6b3a9d8cf"
+private const val walletConnectSessionTopic = "dcf9e8f542e24435b7d4a6785a1e8b32e2b"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +89,11 @@ fun ConcordiumScreen(
                 alignment = Alignment.CenterVertically
             )
         ) {
-            Button(onClick = { ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup() }) {
+            Button(onClick = {
+                ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+                    walletConnectUri = walletConnectUri,
+                )
+            }) {
                 Text(
                     text = stringResource(R.string.open_deeplink_popup),
                 )
@@ -111,13 +119,13 @@ fun ConcordiumScreen(
                 Button(onClick = {
                     runCatching {
                         ConcordiumIDAppPopup.invokeIdAppActionsPopup(
-                            code = "2DS5",
-                            onCreate = if (isCreateAccountChecked) {
+                            walletConnectSessionTopic = walletConnectSessionTopic,
+                            onCreateAccount = if (isCreateAccountChecked) {
                                 {
                                     println("onCreate")
                                 }
                             } else null,
-                            onRecover = if (isRecoverAccountChecked) {
+                            onRecoverAccount = if (isRecoverAccountChecked) {
                                 {
                                     println("onCreate")
                                 }

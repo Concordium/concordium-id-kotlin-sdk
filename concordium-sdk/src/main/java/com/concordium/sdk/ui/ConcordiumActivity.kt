@@ -23,16 +23,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.concordium.sdk.R
+import com.concordium.sdk.api.ConcordiumIDAppPopup
+import com.concordium.sdk.common.Constants
+import com.concordium.sdk.common.handleAppDeepLink
 import com.concordium.sdk.ui.model.AccountAction
 import com.concordium.sdk.ui.model.StepItem
 import com.concordium.sdk.ui.model.UiState
 import com.concordium.sdk.ui.model.UserJourneyStep
 import com.concordium.sdk.ui.model.UserJourneyStep.Connect
 import com.concordium.sdk.ui.theme.ConcordiumSdkAppTheme
+import kotlinx.coroutines.launch
 
 internal class ConcordiumSdkActivity : ComponentActivity() {
 
@@ -40,19 +46,21 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
         const val KEY_ACTION = "key_action"
         const val KEY_STEP = "key_step"
         const val KEY_CODE = "key_code"
+        const val KEY_URI = "key_uri"
 
         fun createIntent(
             context: Context,
+            step: String,
             action: String = "create_or_recover",
-            step: String = Connect.name,
             code: String? = null,
-        ) =
-            Intent(context, ConcordiumSdkActivity::class.java).apply {
-                putExtra(KEY_ACTION, action)
-                putExtra(KEY_STEP, step)
-                putExtra(KEY_CODE, code)
-                addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            }
+            walletConnectUri: String? = null,
+        ) = Intent(context, ConcordiumSdkActivity::class.java).apply {
+            putExtra(KEY_ACTION, action)
+            putExtra(KEY_STEP, step)
+            putExtra(KEY_CODE, code)
+            putExtra(KEY_URI, walletConnectUri)
+            addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        }
     }
 
     private val viewModel: ConcordiumViewModel by viewModels()
@@ -60,6 +68,14 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        lifecycleScope.launch {
+            ConcordiumIDAppPopup.shouldCloseApp.collect {
+                if (it) {
+                    finish()
+                }
+            }
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
@@ -96,8 +112,7 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
         super.finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
-                OVERRIDE_TRANSITION_CLOSE,
-                0, // Enter animation
+                OVERRIDE_TRANSITION_CLOSE, 0, // Enter animation
                 0  // Exit animation
             )
         } else {
@@ -149,7 +164,9 @@ internal fun SdkScreen(
     onRecover: () -> Unit = {},
 ) {
     Column(
-        modifier.fillMaxWidth().background(White),
+        modifier
+            .fillMaxWidth()
+            .background(White),
     ) {
         HeaderSection(onClose = onPopupClose)
         StepperSection(
@@ -159,12 +176,12 @@ internal fun SdkScreen(
         ContentSection(
             userJourneyStep = uiState.journeyStep,
             accountAction = uiState.accountAction,
+            walletConnectUri = uiState.walletConnectUri,
             onCreate = onCreate,
             onRecover = onRecover,
         )
         BottomSection(
-            step = uiState.journeyStep,
-            accountAction = uiState.accountAction
+            step = uiState.journeyStep, accountAction = uiState.accountAction
         )
     }
 }
@@ -173,18 +190,20 @@ internal fun SdkScreen(
 internal fun ContentSection(
     userJourneyStep: UserJourneyStep,
     accountAction: AccountAction,
+    walletConnectUri: String = "",
     onCreate: () -> Unit = {},
     onRecover: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     when (userJourneyStep) {
         Connect -> {
-            QRCodeSection(deepLinkInvoke = {})
+            QRCodeSection(walletConnectUri = walletConnectUri, deepLinkInvoke = {
+                handleAppDeepLink("${Constants.MOBILE_URI_LINK}$walletConnectUri", context)
+            })
         }
 
         UserJourneyStep.IdVerification -> IdVerificationSection(
-            accountAction = accountAction,
-            onCreate = onCreate,
-            onRecover = onRecover
+            accountAction = accountAction, onCreate = onCreate, onRecover = onRecover
         )
 
         UserJourneyStep.Account -> {}
@@ -193,9 +212,7 @@ internal fun ContentSection(
 
 @Composable
 internal fun BottomSection(
-    step: UserJourneyStep,
-    accountAction: AccountAction,
-    modifier: Modifier = Modifier
+    step: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier
 ) {
     when (step) {
         Connect -> PlayStoreSection(infoText = stringResource(R.string.info_text_play_store))
@@ -221,13 +238,10 @@ internal fun BottomSection(
 
 @Composable
 internal fun StepperSection(
-    currentStep: UserJourneyStep,
-    accountAction: AccountAction,
-    modifier: Modifier = Modifier
+    currentStep: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier
 ) {
     StepperView(
-        modifier = modifier
-            .wrapContentWidth(),
+        modifier = modifier.wrapContentWidth(),
         items = listOf(
             StepItem(selected = true, label = stringResource(R.string.step_connect_pair_app)),
             StepItem(
@@ -235,7 +249,8 @@ internal fun StepperSection(
                 label = stringResource(R.string.step_complete_id_verification)
             ),
             StepItem(
-                selected = UserJourneyStep.Account <= currentStep, label = when (accountAction) {
+                selected = UserJourneyStep.Account <= currentStep,
+                label = when (accountAction) {
                     AccountAction.Recover -> stringResource(R.string.step_recover_account)
                     is AccountAction.Create -> stringResource(R.string.step_create_account)
                     else -> stringResource(R.string.step_create_recover_account)

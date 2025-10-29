@@ -120,7 +120,11 @@ internal fun AccountSetupSection(instruction: String, modifier: Modifier = Modif
 }
 
 @Composable
-fun QRCodeSection(deepLinkInvoke: () -> Unit, modifier: Modifier = Modifier) {
+fun QRCodeSection(
+    walletConnectUri: String,
+    deepLinkInvoke: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -149,7 +153,7 @@ fun QRCodeSection(deepLinkInvoke: () -> Unit, modifier: Modifier = Modifier) {
                 containerColor = Blue,
                 contentColor = Color.White
             ),
-            onClick = {}) {
+            onClick = { deepLinkInvoke.invoke() }) {
             Text(
                 modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                 text = "Open {IDApp}",

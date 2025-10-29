@@ -32,4 +32,5 @@ enum class UserJourneyStep {
 data class UiState(
     val accountAction: AccountAction,
     val journeyStep: UserJourneyStep,
+    val walletConnectUri: String = "",
 )
