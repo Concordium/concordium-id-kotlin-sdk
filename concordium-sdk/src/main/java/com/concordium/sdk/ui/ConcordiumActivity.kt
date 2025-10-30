@@ -97,13 +97,6 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
                     uiState = uiState,
                     onPopupClose = { this@ConcordiumSdkActivity.finish() },
                 )
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    SdkScreen(
-//                        uiState = uiState,
-//                        onPopupClose = { this.finish() },
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
             }
         }
     }
@@ -203,7 +196,9 @@ internal fun ContentSection(
         }
 
         UserJourneyStep.IdVerification -> IdVerificationSection(
-            accountAction = accountAction, onCreateAccount = onCreateAccount, onRecoverAccount = onRecoverAccount
+            accountAction = accountAction,
+            onCreateAccount = onCreateAccount,
+            onRecoverAccount = onRecoverAccount
         )
 
         UserJourneyStep.Account -> {}
@@ -263,8 +258,29 @@ internal fun StepperSection(
 
 @Preview(showBackground = true)
 @Composable
-private fun GreetingPreview() {
+private fun DeepLinkInvokePreview() {
     ConcordiumSdkAppTheme {
+        SdkBottomSheet(
+            uiState = UiState(
+                journeyStep = Connect,
+                accountAction = AccountAction.Create("1234"),
+                walletConnectUri = "1234"
+            ),
+            onPopupClose = {},
+        )
+    }
+}
 
+@Preview(showBackground = true)
+@Composable
+private fun AccountCreateInvokePreview() {
+    ConcordiumSdkAppTheme {
+        SdkBottomSheet(
+            uiState = UiState(
+                journeyStep = UserJourneyStep.IdVerification,
+                accountAction = AccountAction.Create("1234"),
+            ),
+            onPopupClose = {},
+        )
     }
 }
