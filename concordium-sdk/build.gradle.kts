@@ -9,7 +9,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 26
 
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -48,7 +48,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.ui.graphics)
-    implementation("com.google.zxing:core:3.5.1")
+    implementation(libs.zxing.core)
+    implementation(libs.concordium.android.sdk)
 
     testImplementation(libs.junit)
     debugImplementation(libs.androidx.ui.tooling)

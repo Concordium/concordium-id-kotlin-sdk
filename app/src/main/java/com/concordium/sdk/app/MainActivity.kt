@@ -98,6 +98,16 @@ fun ConcordiumScreen(
                     text = stringResource(R.string.open_deeplink_popup),
                 )
             }
+
+            Button(onClick = {
+                ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+                    walletConnectUri = walletConnectUri,
+                )
+            }) {
+                Text(
+                    text = stringResource(R.string.open_deeplink_popup),
+                )
+            }
             Spacer(Modifier.height(24.dp))
 
             Column(
