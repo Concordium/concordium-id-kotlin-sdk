@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="company_name">Concordium</string>
+    <string name="step_connect_pair_app">Connect / Pair apps</string>
+    <string name="step_complete_id_verification">Complete ID Verification</string>
+    <string name="step_create_account">Create Account</string>
+    <string name="step_recover_account">Recover account</string>
+    <string name="step_create_recover_account">Create / Recover account</string>
+
+    <string name="message_already_have_an_account">Already have an account <a href="https://example.com/terms">Recover</a></string>
+    <string name="message_complete_setup_in_id_App">Please follow and complete the account setup in the [ID\u00A0App].</string>
+    <string name="message_only_after_id_verification">Only once you\'ve completed the ID Verification, choose your next step.</string>
+    <string name="create_new_account">Create New Account</string>
+    <string name="recover">Recover</string>
+    <string name="open_id_app">Open [ID\u00A0App]</string>
+
+    <string name="info_text_play_store">If you don\'t have [ID\u00A0App]. Install the app then return back here to continue.</string>
+    <string name="message_match_code_in_IDapp">To create an Account, match the code below in [ID\u00A0App]</string>
+</resources>

@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Concordium Sdk App</string>
+    <string name="app_name">Wallet Demo App</string>
+    <string name="open_deeplink_popup">Open deeplink popup</string>
+    <string name="open_actions_popup">Open Actions popup</string>
 </resources>
