@@ -32,6 +32,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.concordium.sdk.api.ConcordiumIDAppPopup
+import com.concordium.sdk.api.ConcordiumIDAppSDK
+import com.concordium.sdk.app.AppConstants.SEED_PHRASE
 import com.concordium.sdk.app.ui.theme.ConcordiumSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Spacing
 import com.concordium.sdk.app.ui.theme.Typography
@@ -70,6 +72,7 @@ fun ConcordiumScreen(
     }
     var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
     var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
+
     Column {
         Text(
             text = content,
@@ -90,12 +93,16 @@ fun ConcordiumScreen(
             )
         ) {
             Button(onClick = {
-                ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-                    walletConnectUri = walletConnectUri,
+                ConcordiumIDAppSDK.signAndSubmit(
+                    seedPhrase = SEED_PHRASE,
+                    inputTranx = readJsonFromAssets(
+                        context,
+                        "tranx.json"
+                    )
                 )
             }) {
                 Text(
-                    text = stringResource(R.string.open_deeplink_popup),
+                    text = stringResource(R.string.sign_submit_traxn),
                 )
             }
 
