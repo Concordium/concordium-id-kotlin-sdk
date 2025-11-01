@@ -140,8 +140,7 @@ object ConcordiumIDAppSDK {
 
         val wallet: ConcordiumHdWallet =
             ConcordiumHdWallet.fromSeedPhrase(seedPhrase, configuration.network)
-
-        val expiry = Expiry.from(System.currentTimeMillis()).addMinutes(configuration.tranxExpiryInMinutes)
+        val expiry = Expiry.from(expiryInMs).addMinutes(configuration.tranxExpiryInMinutes)
 
         // TODO check here what data shall be provided identity and ipIdentity
         val credentialDeploymentRequestInputWithRandomness = createCredentialRequest(
