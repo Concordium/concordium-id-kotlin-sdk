@@ -8,7 +8,7 @@ class ConcordiumSdkDemoApp : Application() {
         super.onCreate()
         ConcordiumIDAppSDK.initialize(
             context = applicationContext,
-            enableDebugging = true
+            configuration = ConcordiumIDAppSDK.Configuration.TEST
         )
     }
 }

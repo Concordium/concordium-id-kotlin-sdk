@@ -49,6 +49,9 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.zxing.core)
+//    implementation(libs.concordium.sdk) {
+//        exclude(group = "com.google.protobuf", module = "protobuf-java")
+//    }
     implementation(libs.concordium.android.sdk)
 
     testImplementation(libs.junit)

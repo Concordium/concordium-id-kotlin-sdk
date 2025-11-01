@@ -1,6 +1,7 @@
 package com.concordium.sdk.api
 
 import android.content.Intent
+import com.concordium.sdk.api.ConcordiumIDAppSDK.checkForInitialization
 import com.concordium.sdk.ui.ConcordiumSdkActivity
 import com.concordium.sdk.ui.model.UserJourneyStep
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ object ConcordiumIDAppPopup {
     fun invokeIdAppDeepLinkPopup(
         walletConnectUri: String
     ) {
+        checkForInitialization()
         shouldCloseApp.update { false }
         val context = ConcordiumIDAppSDK.context
         val intent = ConcordiumSdkActivity.createIntent(
@@ -30,6 +32,7 @@ object ConcordiumIDAppPopup {
         onCreateAccount: (() -> Unit)? = null,
         onRecoverAccount: (() -> Unit)? = null,
     ) {
+        checkForInitialization()
         shouldCloseApp.update { false }
         if (onCreateAccount == null && onRecoverAccount == null) {
             throw IllegalArgumentException("At least one of the handlers must be provided")
@@ -56,6 +59,7 @@ object ConcordiumIDAppPopup {
     }
 
     fun closePopup() {
+        checkForInitialization()
         shouldCloseApp.update { true }
     }
 }

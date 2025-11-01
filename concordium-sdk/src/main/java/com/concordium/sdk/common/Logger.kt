@@ -5,8 +5,7 @@ import com.concordium.sdk.api.ConcordiumIDAppSDK
 
 object Logger {
     private const val TAG = "Concord-SDK"
-    private val isDebug = ConcordiumIDAppSDK.enableDebugging
-
+    private val isDebug = ConcordiumIDAppSDK.configuration.enableDebugging
 
     fun d(message: String) {
         if (isDebug) {

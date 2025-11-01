@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.concordium.sdk.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.concordium.sdk.app"
@@ -47,6 +47,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+//    implementation(libs.concordium.sdk) {
+//        exclude(group = "com.google.protobuf", module = "protobuf-java")
+//    }
     implementation(libs.concordium.android.sdk)
 
     implementation(project(":concordium-sdk"))
