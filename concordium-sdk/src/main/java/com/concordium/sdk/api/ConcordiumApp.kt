@@ -5,9 +5,11 @@ import android.content.Context
 import com.concordium.sdk.ClientV2
 import com.concordium.sdk.Connection
 import com.concordium.sdk.TLSConfig
-import com.concordium.sdk.api.ConcordiumIDAppSDK.Configuration.Companion.PROD
+import com.concordium.sdk.api.Configuration.Companion.PROD
+import com.concordium.sdk.api.model.CCDAccountKeyPair
 import com.concordium.sdk.common.Constants
 import com.concordium.sdk.common.Logger
+import com.concordium.sdk.common.isValidateMnemonic
 import com.concordium.sdk.crypto.wallet.ConcordiumHdWallet
 import com.concordium.sdk.crypto.wallet.Credential
 import com.concordium.sdk.crypto.wallet.Network
@@ -27,30 +29,12 @@ import org.json.JSONObject
 import java.util.Collections
 import java.util.EnumMap
 
-
 @SuppressLint("StaticFieldLeak")
 object ConcordiumIDAppSDK {
     const val KEY_UNSIGNED_STR = "unsignedCdiStr"
     const val KEY_EXPIRY = "expiry"
 
     internal lateinit var configuration: Configuration
-
-    data class Configuration(
-        val enableDebugging: Boolean,
-        val network: Network,
-        val tranxExpiryInMinutes: Int = 16,
-    ) {
-        companion object {
-            val TEST = Configuration(
-                enableDebugging = true,
-                network = Network.TESTNET
-            )
-            val PROD = Configuration(
-                enableDebugging = false,
-                network = Network.MAINNET
-            )
-        }
-    }
 
     private var _context: Context? = null
     val context: Context
@@ -64,12 +48,42 @@ object ConcordiumIDAppSDK {
         this.configuration = configuration
     }
 
+    fun generateAccountWithSeedPhrase(
+        seed: String,
+        network: Network,
+        accountIndex: Int = 0,
+        credentialCounter: Int = 0
+    ): CCDAccountKeyPair {
+        // below check is already inside sdk
+        require(seed.isValidateMnemonic()) {
+            "seed shall be mnemonic phrase"
+        }
+
+        val wallet: ConcordiumHdWallet =
+            ConcordiumHdWallet.fromSeedPhrase(seed, network)
+        val publicKey = wallet.getAccountPublicKey(0, 0, credentialCounter)
+        val signingKey = wallet.getAccountSigningKey(0, 0, credentialCounter)
+
+        return object : CCDAccountKeyPair {
+            override val publicKey = publicKey.toString()
+            override val signingKey = signingKey.toString()
+        }
+    }
+
+    fun getCreateAccountCreationRequest(
+        publicKey: String,
+        reason: String,
+    ) {
+
+    }
+
+
     private fun createCredentialRequest(
         wallet: ConcordiumHdWallet,
         identity: IdentityObject? = null,
         ipIdentity: Int,
     ): UnsignedCredentialDeploymentInfoWithRandomness {
-        val client = ClientService.client()
+        val client = ClientService.client
         val anonymityRevokers =
             Iterable { client.getAnonymityRevokers(BlockQuery.BEST) }.associateBy { it.arIdentity.toString() }
         val providers = client.getIdentityProviders(BlockQuery.BEST)
@@ -127,8 +141,12 @@ object ConcordiumIDAppSDK {
 //        )
 //    }
 
-    fun signAndSubmit(seedPhrase: String, inputTranx: String) {
-        checkForInitialization()
+    fun signAndSubmit(
+        seedPhrase: String,
+        inputTranx: String,
+        network: Network = Network.TESTNET
+    ) {
+//        checkForInitialization()
 
         // parse the transaction
         val json = JSONObject(inputTranx)
@@ -139,8 +157,9 @@ object ConcordiumIDAppSDK {
         Logger.d("expiryInMs : $expiryInMs")
 
         val wallet: ConcordiumHdWallet =
-            ConcordiumHdWallet.fromSeedPhrase(seedPhrase, configuration.network)
-        val expiry = Expiry.from(expiryInMs).addMinutes(configuration.tranxExpiryInMinutes)
+            ConcordiumHdWallet.fromSeedPhrase(seedPhrase, network)
+
+        val expiry = Expiry.from(expiryInMs).addMinutes(configuration.tranxExpiryInMins)
 
         // TODO check here what data shall be provided identity and ipIdentity
         val credentialDeploymentRequestInputWithRandomness = createCredentialRequest(
@@ -160,26 +179,45 @@ object ConcordiumIDAppSDK {
             0,
             0,
         )
-        val signature = accountSigningKey.sign(credentialDeploymentSignDigest);
+        val signature: ByteArray = accountSigningKey.sign(credentialDeploymentSignDigest);
         Logger.d("accountSigningKey: $accountSigningKey")
+        Logger.d("signature: $signature")
 
+        // create payload to send to blockchain
+        val credentialDeploymentTransaction = signCredentialTransaction(
+            CredentialDeploymentDetails(unsignedCdi, expiry),
+            signature,
+        )
 
-        // send the payload to blockchain
-        // create payload
+        // Send payload to blockchain
+        submitCCDTransaction(credentialDeploymentTransaction)
+    }
+
+    fun signCredentialTransaction(
+        credentialDeploymentDetails: CredentialDeploymentDetails,
+        signature: ByteArray,
+    ): CredentialDeploymentTransaction {
         val context = CredentialDeploymentSerializationContext(
-            unsignedCdi,
+            credentialDeploymentDetails.unsignedCdi,
             Collections.singletonMap(Index.from(0), Hex.encodeHexString(signature))
         )
         val credentialPayload = Credential.serializeCredentialDeploymentPayload(context)
 
-
-        // Send payload to client:
-        val client = ClientService.client()
         val credentialDeploymentTransaction =
-            CredentialDeploymentTransaction.from(expiry, credentialPayload)
+            CredentialDeploymentTransaction.from(
+                credentialDeploymentDetails.expiry,
+                credentialPayload
+            )
+        return credentialDeploymentTransaction
+    }
+
+    fun submitCCDTransaction(credentialDeploymentTransaction: CredentialDeploymentTransaction) {
+        // Send payload to client:
+        val client = ClientService.client
+
         val responseHash =
             client.sendCredentialDeploymentTransaction(credentialDeploymentTransaction)
-        Logger.d("responseHash ${responseHash.toString()}")
+        Logger.d("responseHash $responseHash")
     }
 
     internal object ClientService {
@@ -189,7 +227,7 @@ object ConcordiumIDAppSDK {
             .useTLS(TLSConfig.auto())
             .build()
 
-        fun client() = ClientV2.from(connection)
+        val client: ClientV2 = ClientV2.from(connection)
     }
 
 

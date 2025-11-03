@@ -17,4 +17,5 @@ object Constants {
     const val WALLET_PROXY_URL = "https://wallet-proxy.testnet.concordium.com"
     const val CALLBACK_URL = "concordiumwallet-example://identity-issuer/callback"
 
+    const val TRANX_EXPIRY_IN_MINUTES = 16
 }
