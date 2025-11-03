@@ -2,5 +2,5 @@ package com.concordium.sdk.app
 
 object AppConstants {
     const val SEED_PHRASE =
-        "throw action salad convince north kit zero rude mango whip dinner situate remove maple oval draw diesel envelope inmate laptop hill visa magic stand"
+        "feed stove enlist huge eagle tenant turn increase hard anxiety voyage owner join describe salon fatal square rifle cereal camera empty walk number ordinary"
 }

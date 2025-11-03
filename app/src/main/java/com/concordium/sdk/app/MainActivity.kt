@@ -37,6 +37,7 @@ import com.concordium.sdk.app.AppConstants.SEED_PHRASE
 import com.concordium.sdk.app.ui.theme.ConcordiumSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Spacing
 import com.concordium.sdk.app.ui.theme.Typography
+import com.concordium.sdk.crypto.wallet.Network
 
 private const val walletConnectUri =
     "wc:2b4e5df1-91e3-4c62-9d0a-dc2318a1f2d2@2?relay-protocol=irn&symKey=dcf9e8f542e24435b7d4a6785a1e8b32e2b03728f6b6a8a5c6e4d1b6b3a9d8cf"
@@ -98,7 +99,8 @@ fun ConcordiumScreen(
                     inputTranx = readJsonFromAssets(
                         context,
                         "tranx.json"
-                    )
+                    ),
+                    network = Network.TESTNET,
                 )
             }) {
                 Text(
