@@ -2,14 +2,9 @@ package com.concordium.sdk.api
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.concordium.sdk.ClientV2
-import com.concordium.sdk.Connection
-import com.concordium.sdk.TLSConfig
-import com.concordium.sdk.api.Configuration.Companion.PROD
 import com.concordium.sdk.api.model.CCDAccountKeyPair
-import com.concordium.sdk.common.Constants
+import com.concordium.sdk.common.ClientService
 import com.concordium.sdk.common.Logger
-import com.concordium.sdk.common.isValidateMnemonic
 import com.concordium.sdk.crypto.wallet.ConcordiumHdWallet
 import com.concordium.sdk.crypto.wallet.Credential
 import com.concordium.sdk.crypto.wallet.Network
@@ -26,38 +21,90 @@ import java.util.Collections
 
 @SuppressLint("StaticFieldLeak")
 object ConcordiumIDAppSDK {
-    const val KEY_UNSIGNED_STR = "unsignedCdiStr"
-    const val KEY_EXPIRY = "expiry"
-
-    internal lateinit var configuration: Configuration
+    internal const val KEY_UNSIGNED_STR = "unsignedCdiStr"
+    internal const val KEY_EXPIRY = "expiry"
+    internal var enableDebugging: Boolean = false
 
     private var _context: Context? = null
-    val context: Context
+    internal val context: Context
         get() = _context!!
 
     fun initialize(
         context: Context,
-        configuration: Configuration = PROD
+        enableDebugLog: Boolean = false,
     ) {
         this._context = context
-        this.configuration = configuration
+        this.enableDebugging = enableDebugLog
     }
 
+    /**
+     * sign and submit transaction to blockchain
+     * @param seedPhrase
+     * @param inputTranx
+     * @param accountIndex
+     * @param network, defaults to Mainnet
+     */
+    fun signAndSubmit(
+        seedPhrase: String,
+        inputTranx: String,
+        accountIndex: Int = 0,
+        network: Network = Network.MAINNET,
+    ): String {
+        Logger.d("sign and submit tranx")
+        // parse the transaction
+        val json = JSONObject(inputTranx)
+        val unsignedCdiText = json.getString(KEY_UNSIGNED_STR)
+        val expiryInMs = json.getLong(KEY_EXPIRY)
+
+        val unsignedCdi = JsonMapper.INSTANCE.readValue(
+            unsignedCdiText,
+            UnsignedCredentialDeploymentInfo::class.java
+        )
+        Logger.d("unsignedCdi: $unsignedCdiText")
+        Logger.d("expiryInMs : $expiryInMs")
+
+        // generate signature
+        val expiry = Expiry.from(expiryInMs)
+        val wallet = ConcordiumHdWallet.fromSeedPhrase(seedPhrase, network)
+        val credentialDeploymentDetails = CredentialDeploymentDetails(unsignedCdi, expiry)
+        val credentialDeploymentSignDigest =
+            Credential.getCredentialDeploymentSignDigest(credentialDeploymentDetails)
+        val accountSigningKey = wallet.getAccountSigningKey(
+            0,
+            0,
+            accountIndex,
+        )
+        val signature = accountSigningKey.sign(credentialDeploymentSignDigest)
+        Logger.d("accountSigningKey: $accountSigningKey")
+        Logger.d("signature: $signature")
+
+        // create payload tranx to send to blockchain
+        val credentialDeploymentTransaction = createCredentialTransactionPayload(
+            credentialDeploymentDetails,
+            signature,
+        )
+
+        // Send payload to blockchain
+        val response = submitCCDTransaction(network, credentialDeploymentTransaction)
+        Logger.d("transactionHash = $response")
+        return response
+    }
+
+    /**
+     * generate account key pair from seed phrase
+     * @param seed
+     * @param network, defaults to Mainnet
+     * @param accountIndex
+     */
     fun generateAccountWithSeedPhrase(
         seed: String,
         network: Network,
         accountIndex: Int = 0,
-        credentialCounter: Int = 0
     ): CCDAccountKeyPair {
-        // below check is already inside sdk
-        require(seed.isValidateMnemonic()) {
-            "seed shall be mnemonic phrase"
-        }
-
         val wallet: ConcordiumHdWallet =
             ConcordiumHdWallet.fromSeedPhrase(seed, network)
-        val publicKey = wallet.getAccountPublicKey(0, 0, credentialCounter)
-        val signingKey = wallet.getAccountSigningKey(0, 0, credentialCounter)
+        val publicKey = wallet.getAccountPublicKey(0, 0, accountIndex)
+        val signingKey = wallet.getAccountSigningKey(0, 0, accountIndex)
 
         return object : CCDAccountKeyPair {
             override val publicKey = publicKey.toString()
@@ -65,59 +112,19 @@ object ConcordiumIDAppSDK {
         }
     }
 
-    fun getCreateAccountCreationRequest(
-        publicKey: String,
-        reason: String,
-    ) {
-
+    /**
+     * cleaning up resources
+     */
+    fun clear() {
+        _context = null
+        ClientService.close()
+        Logger.d("ConcordiumIDAppSDK cleared")
     }
 
-    fun signAndSubmit(
-        seedPhrase: String,
-        inputTranx: String,
-        accountIndex: Int = 0,
-        network: Network = Network.MAINNET,
-    ): String {
-        // parse the transaction
-        val json = JSONObject(inputTranx)
-        val unsignedCdiText = json.getString(KEY_UNSIGNED_STR)
-        val expiryInMs = json.getLong(KEY_EXPIRY)
-
-        val unsignedCdi: UnsignedCredentialDeploymentInfo = JsonMapper.INSTANCE.readValue(
-            unsignedCdiText,
-            UnsignedCredentialDeploymentInfo::class.java
-        )
-
-        Logger.d("unsignedCdi: $unsignedCdiText")
-        Logger.d("expiryInMs : $expiryInMs")
-
-        val wallet: ConcordiumHdWallet = ConcordiumHdWallet.fromSeedPhrase(seedPhrase, network)
-        val expiry = Expiry.from(expiryInMs)
-
-        // generate signature
-        val credentialDeploymentSignDigest = Credential.getCredentialDeploymentSignDigest(
-            CredentialDeploymentDetails(unsignedCdi, expiry)
-        )
-
-        val accountSigningKey = wallet.getAccountSigningKey(
-            0,
-            0,
-            accountIndex,
-        )
-        val signature: ByteArray = accountSigningKey.sign(credentialDeploymentSignDigest)
-
-        Logger.d("accountSigningKey: $accountSigningKey")
-        Logger.d("signature: $signature")
-
-        // create payload tranx to send to blockchain
-        val credentialDeploymentTransaction = createCredentialTransactionPayload(
-            CredentialDeploymentDetails(unsignedCdi, expiry),
-            signature,
-        )
-
-        // Send payload to blockchain
-        val response = submitCCDTransaction(network, credentialDeploymentTransaction)
-        return response
+    internal fun checkForInitialization() {
+        require(_context != null) {
+            "ConcordiumIDAppSDK not initialized"
+        }
     }
 
     private fun createCredentialTransactionPayload(
@@ -138,45 +145,14 @@ object ConcordiumIDAppSDK {
         return credentialDeploymentTransactionPayload
     }
 
-
-    /**
-     *
-     */
-    fun submitCCDTransaction(
+    private fun submitCCDTransaction(
         network: Network,
         credentialDeploymentTransaction: CredentialDeploymentTransaction
     ): String {
         val client = ClientService.getClient(network = network)
 
-        val responseHash =
+        val transactionHash =
             client.sendCredentialDeploymentTransaction(credentialDeploymentTransaction)
-        Logger.d("responseHash $responseHash")
-        return responseHash.toString()
-    }
-
-    internal object ClientService {
-        fun getClient(network: Network): ClientV2 {
-            val url =
-                if (network == Network.TESTNET) Constants.GRPC_TEST_URL else Constants.GRPC_MAINNET_URL
-            val connection: Connection = Connection.newBuilder()
-                .host(url)
-                .port(Constants.GRPC_PORT)
-                .useTLS(TLSConfig.auto())
-                .build()
-
-            return ClientV2.from(connection)
-        }
-    }
-
-
-    internal fun checkForInitialization() {
-        require(_context != null) {
-            "ConcordiumIDAppSDK not initialized"
-        }
-    }
-
-
-    fun clear() {
-        _context = null
+        return transactionHash.toString()
     }
 }

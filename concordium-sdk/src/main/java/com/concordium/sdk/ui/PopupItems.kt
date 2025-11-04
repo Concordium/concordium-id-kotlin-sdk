@@ -342,7 +342,7 @@ internal fun StepperView(
 }
 
 @Composable
-fun MatchCodeSection(instruction: String, codeText: String, modifier: Modifier = Modifier) {
+internal fun MatchCodeSection(instruction: String, codeText: String, modifier: Modifier = Modifier) {
     Column(
         modifier
             .fillMaxWidth()
@@ -357,6 +357,32 @@ fun MatchCodeSection(instruction: String, codeText: String, modifier: Modifier =
             textAlign = TextAlign.Center,
         )
         CircularBox(text = codeText)
+    }
+}
+
+@Composable
+internal fun PlayStoreSection(
+    infoText: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(color = Grayish)
+            .padding(horizontal = 32.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = infoText,
+            style = Typography.displayMedium,
+            textAlign = TextAlign.Center,
+        )
+        Image(
+            modifier = Modifier.height(38.dp),
+            painter = painterResource(R.drawable.play_store_icon),
+            contentDescription = infoText,
+        )
     }
 }
 
@@ -385,32 +411,6 @@ private fun CircularBox(
             style = textStyle,
             textAlign = TextAlign.Center,
             color = Blue,
-        )
-    }
-}
-
-@Composable
-internal fun PlayStoreSection(
-    infoText: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(color = Grayish)
-            .padding(horizontal = 32.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = infoText,
-            style = Typography.displayMedium,
-            textAlign = TextAlign.Center,
-        )
-        Image(
-            modifier = Modifier.height(38.dp),
-            painter = painterResource(R.drawable.play_store_icon),
-            contentDescription = infoText,
         )
     }
 }

@@ -3,31 +3,17 @@ package com.concordium.sdk.common
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.core.net.toUri
-import org.bitcoinj.crypto.MnemonicCode
-import org.bitcoinj.crypto.MnemonicException
-
-
-internal fun String.isValidateMnemonic(): Boolean {
-    return try {
-        val words = this.trim().split("\\s+".toRegex())
-        MnemonicCode.INSTANCE.check(words)
-        true
-    } catch (e: MnemonicException) {
-        false
-    }
-}
 
 internal fun handleAppDeepLink(
     deeplink: String,
     context: Context,
     playStoreLink: String = Constants.ID_APP_PLAY_STORE_LINK,
 ): Boolean {
-    val uri = Uri.parse(deeplink)
+    val uri = deeplink.toUri()
     val intent = Intent(Intent.ACTION_VIEW, uri).apply {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }

@@ -2,6 +2,7 @@ package com.concordium.sdk.api
 
 import android.content.Intent
 import com.concordium.sdk.api.ConcordiumIDAppSDK.checkForInitialization
+import com.concordium.sdk.common.Logger
 import com.concordium.sdk.ui.ConcordiumSdkActivity
 import com.concordium.sdk.ui.model.UserJourneyStep
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,11 +12,17 @@ object ConcordiumIDAppPopup {
 
     internal val shouldCloseApp = MutableStateFlow(false)
 
+    /**
+    *  Invoke ID App Deep Link Popup
+    *  @param walletConnectUri: String
+    * */
     fun invokeIdAppDeepLinkPopup(
         walletConnectUri: String
     ) {
         checkForInitialization()
         shouldCloseApp.update { false }
+        Logger.d("Invoke ID App Deep Link Popup")
+
         val context = ConcordiumIDAppSDK.context
         val intent = ConcordiumSdkActivity.createIntent(
             context = context,
@@ -27,6 +34,13 @@ object ConcordiumIDAppPopup {
         context.startActivity(intent)
     }
 
+    /**
+     * Invoke ID App Actions Popup
+     *
+     * @param walletConnectSessionTopic: String?
+     * @param onCreateAccount: (() -> Unit)?
+     * @param onRecoverAccount: (() -> Unit)?
+     */
     fun invokeIdAppActionsPopup(
         walletConnectSessionTopic: String? = null,
         onCreateAccount: (() -> Unit)? = null,
@@ -45,6 +59,8 @@ object ConcordiumIDAppPopup {
             onCreateAccount == null -> "recover"
             else -> "create_or_recover"
         }
+        Logger.d("Invoke ID App Actions Popup with action: $action")
+
         val code = walletConnectSessionTopic?.substring(0, 4)?.uppercase()
         val context = ConcordiumIDAppSDK.context
         val intent = ConcordiumSdkActivity.createIntent(
@@ -58,8 +74,12 @@ object ConcordiumIDAppPopup {
         context.startActivity(intent)
     }
 
+    /**
+     * Close ID App Popup
+    */
     fun closePopup() {
         checkForInitialization()
         shouldCloseApp.update { true }
+        Logger.d("Close ID App Popup")
     }
 }

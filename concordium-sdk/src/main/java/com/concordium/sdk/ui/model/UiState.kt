@@ -1,6 +1,6 @@
 package com.concordium.sdk.ui.model
 
-sealed interface AccountAction {
+internal sealed interface AccountAction {
     object Recover : AccountAction
     class Create(val code: String) : AccountAction
     class CreateOrRecover(val code: String) : AccountAction
@@ -16,7 +16,7 @@ sealed interface AccountAction {
     }
 }
 
-enum class UserJourneyStep {
+internal enum class UserJourneyStep {
     Connect,
     IdVerification,
     Account;
@@ -29,7 +29,7 @@ enum class UserJourneyStep {
     }
 }
 
-data class UiState(
+internal data class UiState(
     val accountAction: AccountAction,
     val journeyStep: UserJourneyStep,
     val walletConnectUri: String = "",

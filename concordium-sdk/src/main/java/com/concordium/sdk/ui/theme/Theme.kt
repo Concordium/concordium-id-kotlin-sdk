@@ -21,7 +21,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun ConcordiumSdkAppTheme(
+internal fun ConcordiumSdkAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

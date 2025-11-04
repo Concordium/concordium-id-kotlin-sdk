@@ -3,9 +3,9 @@ package com.concordium.sdk.common
 import android.util.Log
 import com.concordium.sdk.api.ConcordiumIDAppSDK
 
-object Logger {
+internal object Logger {
     private const val TAG = "Concord-SDK"
-    private val isDebug = ConcordiumIDAppSDK.configuration.enableDebugging
+    private val isDebug = ConcordiumIDAppSDK.enableDebugging
 
     fun d(message: String) {
         if (isDebug) {
