@@ -77,7 +77,7 @@ fun ConcordiumScreen(
     Column {
         Text(
             text = content,
-            style = Typography.headlineLarge,
+            style = Typography.headlineMedium,
             textAlign = TextAlign.Center,
             modifier = modifier
                 .fillMaxWidth()
