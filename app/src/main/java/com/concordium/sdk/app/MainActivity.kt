@@ -33,9 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.concordium.sdk.api.ConcordiumIDAppPopup
 import com.concordium.sdk.api.ConcordiumIDAppSDK
-import com.concordium.sdk.app.AppConstants.SEED_PHRASE
+import com.concordium.sdk.app.AppConstants.DUMMY_SEED_PHRASE
 import com.concordium.sdk.app.ui.theme.ConcordiumSdkAppTheme
-import com.concordium.sdk.app.ui.theme.Spacing
 import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
 
@@ -43,7 +42,7 @@ private const val walletConnectUri =
     "wc:2b4e5df1-91e3-4c62-9d0a-dc2318a1f2d2@2?relay-protocol=irn&symKey=dcf9e8f542e24435b7d4a6785a1e8b32e2b03728f6b6a8a5c6e4d1b6b3a9d8cf"
 private const val walletConnectSessionTopic = "dcf9e8f542e24435b7d4a6785a1e8b32e2b"
 
-class MainActivity : ComponentActivity() {
+internal class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -86,7 +85,7 @@ fun ConcordiumScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(all = Spacing.fourX),
+                .padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
                 24.dp,
@@ -95,7 +94,7 @@ fun ConcordiumScreen(
         ) {
             Button(onClick = {
                 ConcordiumIDAppSDK.signAndSubmit(
-                    seedPhrase = SEED_PHRASE,
+                    seedPhrase = DUMMY_SEED_PHRASE,
                     inputTranx = readJsonFromAssets(
                         context,
                         "tranx.json"
