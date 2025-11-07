@@ -31,10 +31,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.concordium.sdk.api.ConcordiumIDAppPopup
-import com.concordium.sdk.api.ConcordiumIDAppSDK
+import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
+import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
+import com.concordium.idapp.sdk.app.R
 import com.concordium.sdk.app.AppConstants.DUMMY_SEED_PHRASE
-import com.concordium.sdk.app.ui.theme.ConcordiumSdkAppTheme
+import com.concordium.sdk.app.ui.theme.ConcordiumIdAppSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
 
@@ -47,7 +48,7 @@ internal class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ConcordiumSdkAppTheme {
+            ConcordiumIdAppSdkAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ConcordiumScreen(
                         content = stringResource(R.string.app_name),
@@ -170,7 +171,7 @@ fun ConcordiumScreen(
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    ConcordiumSdkAppTheme {
+    ConcordiumIdAppSdkAppTheme {
         ConcordiumScreen(
             stringResource(R.string.app_name),
             callback = {}
