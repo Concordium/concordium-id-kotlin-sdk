@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -85,38 +85,38 @@ fun ConcordiumScreen(
         callback()
     }
 
-    Column {
+    Column(modifier = modifier.fillMaxSize()) {
         Text(
             text = content,
             style = Typography.headlineMedium,
             textAlign = TextAlign.Center,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 64.dp)
         )
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(
-                24.dp,
-                alignment = Alignment.CenterVertically
-            )
         ) {
+            // Seed Phrase and Transaction Section
+            Text(text = stringResource(id = R.string.seed_phrase_and_transaction_title), style = Typography.titleMedium)
+            Spacer(Modifier.height(16.dp))
             OutlinedTextField(
                 value = seedPhrase,
                 onValueChange = { seedPhrase = it },
                 label = { Text(stringResource(id = R.string.seed_phrase_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(Modifier.height(8.dp))
             Button(onClick = {
                 sharedPreferences.edit(commit = true) { putString(SEED_PHRASE_KEY, seedPhrase) }
                 Toast.makeText(context, R.string.seed_phrase_saved, Toast.LENGTH_SHORT).show()
             }) {
                 Text(text = stringResource(id = R.string.save_seed_phrase))
             }
-
+            Spacer(Modifier.height(8.dp))
             Button(onClick = {
                 ConcordiumIDAppSDK.signAndSubmit(
                     seedPhrase = seedPhrase,
@@ -132,6 +132,13 @@ fun ConcordiumScreen(
                 )
             }
 
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider()
+            Spacer(Modifier.height(16.dp))
+
+            // Deeplink and Actions Section
+            Text(text = stringResource(id = R.string.deeplink_and_actions_title), style = Typography.titleMedium)
+            Spacer(Modifier.height(16.dp))
             Button(onClick = {
                 ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
                     walletConnectUri = walletConnectUri,
