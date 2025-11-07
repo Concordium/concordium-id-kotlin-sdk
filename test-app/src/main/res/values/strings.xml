@@ -3,4 +3,10 @@
     <string name="open_deeplink_popup">Open deeplink popup</string>
     <string name="open_actions_popup">Open Actions popup</string>
     <string name="sign_submit_traxn">Sign and submit transaction</string>
+    <string name="seed_phrase_label">Seed Phrase</string>
+    <string name="save_seed_phrase">Save Seed Phrase</string>
+    <string name="seed_phrase_saved">Seed phrase saved</string>
+    <string name="create_account_label">Create account</string>
+    <string name="recover_account_label">Recover account</string>
+    <string name="at_least_one_box_must_be_checked">at least one box must be checked</string>
 </resources>

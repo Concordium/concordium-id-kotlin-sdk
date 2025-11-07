@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
 import com.concordium.idapp.sdk.app.R
@@ -106,17 +107,14 @@ fun ConcordiumScreen(
             OutlinedTextField(
                 value = seedPhrase,
                 onValueChange = { seedPhrase = it },
-                label = { Text("Seed Phrase") },
+                label = { Text(stringResource(id = R.string.seed_phrase_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Button(onClick = {
-                with(sharedPreferences.edit()) {
-                    putString(SEED_PHRASE_KEY, seedPhrase)
-                    apply()
-                }
-                Toast.makeText(context, "Seed phrase saved", Toast.LENGTH_SHORT).show()
+                sharedPreferences.edit(commit = true) { putString(SEED_PHRASE_KEY, seedPhrase) }
+                Toast.makeText(context, R.string.seed_phrase_saved, Toast.LENGTH_SHORT).show()
             }) {
-                Text(text = "Save Seed Phrase")
+                Text(text = stringResource(id = R.string.save_seed_phrase))
             }
 
             Button(onClick = {
@@ -154,12 +152,12 @@ fun ConcordiumScreen(
                     Checkbox(
                         checked = isCreateAccountChecked,
                         onCheckedChange = { isCreateAccountChecked = it })
-                    Text(text = "Create account")
+                    Text(text = stringResource(id = R.string.create_account_label))
                     Spacer(Modifier.width(16.dp))
                     Checkbox(
                         checked = isRecoverAccountChecked,
                         onCheckedChange = { isRecoverAccountChecked = it })
-                    Text(text = "Recover account")
+                    Text(text = stringResource(id = R.string.recover_account_label))
                 }
                 Button(onClick = {
                     runCatching {
@@ -167,12 +165,12 @@ fun ConcordiumScreen(
                             walletConnectSessionTopic = walletConnectSessionTopic,
                             onCreateAccount = if (isCreateAccountChecked) {
                                 {
-                                    println("onCreate")
+                                    println("onCreate Account")
                                 }
                             } else null,
                             onRecoverAccount = if (isRecoverAccountChecked) {
                                 {
-                                    println("onCreate")
+                                    println("onRecover Account")
                                 }
                             } else null,
                         )
@@ -180,7 +178,7 @@ fun ConcordiumScreen(
                         it.printStackTrace()
                         Toast.makeText(
                             context,
-                            "at least one box must be checked",
+                            R.string.at_least_one_box_must_be_checked,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
