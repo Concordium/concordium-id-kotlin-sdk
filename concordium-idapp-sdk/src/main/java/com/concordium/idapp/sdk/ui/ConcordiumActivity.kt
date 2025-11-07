@@ -28,16 +28,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.concordium.sdk.R
-import com.concordium.sdk.api.ConcordiumIDAppPopup
-import com.concordium.sdk.common.Constants
-import com.concordium.sdk.common.handleAppDeepLink
-import com.concordium.sdk.ui.model.AccountAction
-import com.concordium.sdk.ui.model.StepItem
-import com.concordium.sdk.ui.model.UiState
-import com.concordium.sdk.ui.model.UserJourneyStep
-import com.concordium.sdk.ui.model.UserJourneyStep.Connect
-import com.concordium.sdk.ui.theme.ConcordiumSdkAppTheme
+import com.concordium.idapp.sdk.R
+import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
+import com.concordium.idapp.sdk.common.Constants
+import com.concordium.idapp.sdk.common.handleAppDeepLink
+import com.concordium.idapp.sdk.ui.model.AccountAction
+import com.concordium.idapp.sdk.ui.model.StepItem
+import com.concordium.idapp.sdk.ui.model.UiState
+import com.concordium.idapp.sdk.ui.model.UserJourneyStep
+import com.concordium.idapp.sdk.ui.model.UserJourneyStep.Account
+import com.concordium.idapp.sdk.ui.model.UserJourneyStep.Connect
+import com.concordium.idapp.sdk.ui.model.UserJourneyStep.IdVerification
+import com.concordium.idapp.sdk.ui.theme.ConcordiumSdkAppTheme
 import kotlinx.coroutines.launch
 
 internal class ConcordiumSdkActivity : ComponentActivity() {
@@ -195,13 +197,13 @@ internal fun ContentSection(
             })
         }
 
-        UserJourneyStep.IdVerification -> IdVerificationSection(
+        IdVerification -> IdVerificationSection(
             accountAction = accountAction,
             onCreateAccount = onCreateAccount,
             onRecoverAccount = onRecoverAccount
         )
 
-        UserJourneyStep.Account -> {}
+        Account -> {}
     }
 }
 
@@ -211,7 +213,7 @@ internal fun BottomSection(
 ) {
     when (step) {
         Connect -> PlayStoreSection(infoText = stringResource(R.string.info_text_play_store))
-        UserJourneyStep.IdVerification -> {
+        IdVerification -> {
             when (accountAction) {
                 is AccountAction.Create -> MatchCodeSection(
                     instruction = stringResource(R.string.message_match_code_in_IDapp),
@@ -227,7 +229,7 @@ internal fun BottomSection(
             }
         }
 
-        UserJourneyStep.Account -> {}
+        Account -> {}
     }
 }
 
@@ -240,11 +242,11 @@ internal fun StepperSection(
         items = listOf(
             StepItem(selected = true, label = stringResource(R.string.step_connect_pair_app)),
             StepItem(
-                selected = UserJourneyStep.IdVerification <= currentStep,
+                selected = IdVerification <= currentStep,
                 label = stringResource(R.string.step_complete_id_verification)
             ),
             StepItem(
-                selected = UserJourneyStep.Account <= currentStep,
+                selected = Account <= currentStep,
                 label = when (accountAction) {
                     AccountAction.Recover -> stringResource(R.string.step_recover_account)
                     is AccountAction.Create -> stringResource(R.string.step_create_account)
@@ -277,7 +279,7 @@ private fun AccountCreateInvokePreview() {
     ConcordiumSdkAppTheme {
         SdkBottomSheet(
             uiState = UiState(
-                journeyStep = UserJourneyStep.IdVerification,
+                journeyStep = IdVerification,
                 accountAction = AccountAction.Create("1234"),
             ),
             onPopupClose = {},

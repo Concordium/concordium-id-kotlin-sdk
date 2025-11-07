@@ -2,13 +2,13 @@ package com.concordium.idapp.sdk.ui
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
-import com.concordium.sdk.ui.ConcordiumSdkActivity.Companion.KEY_ACTION
-import com.concordium.sdk.ui.ConcordiumSdkActivity.Companion.KEY_CODE
-import com.concordium.sdk.ui.ConcordiumSdkActivity.Companion.KEY_STEP
-import com.concordium.sdk.ui.ConcordiumSdkActivity.Companion.KEY_URI
-import com.concordium.sdk.ui.model.AccountAction
-import com.concordium.sdk.ui.model.UiState
-import com.concordium.sdk.ui.model.UserJourneyStep
+import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_ACTION
+import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_CODE
+import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_STEP
+import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_URI
+import com.concordium.idapp.sdk.ui.model.AccountAction
+import com.concordium.idapp.sdk.ui.model.UiState
+import com.concordium.idapp.sdk.ui.model.UserJourneyStep
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

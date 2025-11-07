@@ -40,16 +40,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.concordium.sdk.R
-import com.concordium.sdk.common.toDp
-import com.concordium.sdk.common.toPixels
-import com.concordium.sdk.ui.model.AccountAction
-import com.concordium.sdk.ui.model.StepItem
-import com.concordium.sdk.ui.theme.Black
-import com.concordium.sdk.ui.theme.Blue
-import com.concordium.sdk.ui.theme.Grayish
-import com.concordium.sdk.ui.theme.Typography
-import com.concordium.sdk.ui.theme.White
+import com.concordium.idapp.sdk.R
+import com.concordium.idapp.sdk.common.toDp
+import com.concordium.idapp.sdk.common.toPixels
+import com.concordium.idapp.sdk.ui.model.AccountAction
+import com.concordium.idapp.sdk.ui.model.StepItem
+import com.concordium.idapp.sdk.ui.theme.Black
+import com.concordium.idapp.sdk.ui.theme.Blue
+import com.concordium.idapp.sdk.ui.theme.Grayish
+import com.concordium.idapp.sdk.ui.theme.Typography
+import com.concordium.idapp.sdk.ui.theme.White
 
 @Composable
 internal fun HeaderSection(onClose: () -> Unit, modifier: Modifier = Modifier) {

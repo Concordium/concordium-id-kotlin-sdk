@@ -2,9 +2,9 @@ package com.concordium.idapp.sdk.api
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.concordium.sdk.api.model.CCDAccountKeyPair
-import com.concordium.sdk.common.ClientService
-import com.concordium.sdk.common.Logger
+import com.concordium.idapp.sdk.api.model.CCDAccountKeyPair
+import com.concordium.idapp.sdk.common.ClientService
+import com.concordium.idapp.sdk.common.Logger
 import com.concordium.sdk.crypto.wallet.ConcordiumHdWallet
 import com.concordium.sdk.crypto.wallet.Credential
 import com.concordium.sdk.crypto.wallet.Network

@@ -1,10 +1,10 @@
 package com.concordium.idapp.sdk.api
 
 import android.content.Intent
-import com.concordium.sdk.api.ConcordiumIDAppSDK.checkForInitialization
-import com.concordium.sdk.common.Logger
-import com.concordium.sdk.ui.ConcordiumSdkActivity
-import com.concordium.sdk.ui.model.UserJourneyStep
+import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK.checkForInitialization
+import com.concordium.idapp.sdk.common.Logger
+import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity
+import com.concordium.idapp.sdk.ui.model.UserJourneyStep
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 

@@ -1,7 +1,7 @@
 package com.concordium.idapp.sdk.common
 
 import android.util.Log
-import com.concordium.sdk.api.ConcordiumIDAppSDK
+import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
 
 internal object Logger {
     private const val TAG = "Concordium-IDApp-SDK"
