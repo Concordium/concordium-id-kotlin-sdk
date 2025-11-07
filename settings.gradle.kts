@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Concordium Sdk App"
-include(":app")
-include(":concordium-sdk")
+rootProject.name = "Concordium IdApp Sdk App"
+include(":test-app")
+include(":concordium-idapp-sdk")

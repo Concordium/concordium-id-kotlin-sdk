@@ -47,8 +47,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.concordium.android.sdk)
-
-    implementation(project(":concordium-sdk"))
+    implementation(project(":concordium-idapp-sdk"))
 
     testImplementation(libs.junit)
     debugImplementation(libs.androidx.ui.tooling)
