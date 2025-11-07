@@ -9,4 +9,10 @@ internal object Constants {
     const val GRPC_TEST_URL = "grpc.testnet.concordium.com"
 
     const val GRPC_PORT = 20_000
+
+    val SESSION_TOPIC_REGEX = Regex("^[0-9a-f]{64}$")
+
+    val WC_URI_REGEX = Regex(
+        """^wc:[0-9a-fA-F-]+@[12]\?bridge=.+&key=[0-9a-fA-F]+$"""
+    )
 }

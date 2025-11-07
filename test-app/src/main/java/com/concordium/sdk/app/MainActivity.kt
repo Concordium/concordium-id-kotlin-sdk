@@ -35,6 +35,7 @@ import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
 import com.concordium.idapp.sdk.app.R
 import com.concordium.sdk.app.AppConstants.DUMMY_SEED_PHRASE
+import com.concordium.sdk.app.AppConstants.TRANX_FILE_NAME
 import com.concordium.sdk.app.ui.theme.ConcordiumIdAppSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
@@ -96,9 +97,9 @@ fun ConcordiumScreen(
             Button(onClick = {
                 ConcordiumIDAppSDK.signAndSubmit(
                     seedPhrase = DUMMY_SEED_PHRASE,
-                    inputTranx = readJsonFromAssets(
+                    serializedCredentialDeploymentTransaction = readJsonFromAssets(
                         context = context,
-                        fileName = "tranx.json"
+                        fileName = TRANX_FILE_NAME,
                     ),
                     network = Network.TESTNET,
                 )

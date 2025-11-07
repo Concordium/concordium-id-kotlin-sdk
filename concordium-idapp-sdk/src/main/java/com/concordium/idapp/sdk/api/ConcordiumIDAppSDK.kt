@@ -40,19 +40,19 @@ object ConcordiumIDAppSDK {
     /**
      * sign and submit transaction to blockchain
      * @param seedPhrase
-     * @param inputTranx
+     * @param serializedCredentialDeploymentTransaction
      * @param accountIndex
      * @param network, defaults to Mainnet
      */
     fun signAndSubmit(
         seedPhrase: String,
-        inputTranx: String,
+        serializedCredentialDeploymentTransaction: String,
         accountIndex: Int = 0,
         network: Network = Network.MAINNET,
     ): String {
         Logger.d("sign and submit tranx")
         // parse the transaction
-        val json = JSONObject(inputTranx)
+        val json = JSONObject(serializedCredentialDeploymentTransaction)
         val unsignedCdiText = json.getString(KEY_UNSIGNED_STR)
         val expiryInMs = json.getLong(KEY_EXPIRY)
 

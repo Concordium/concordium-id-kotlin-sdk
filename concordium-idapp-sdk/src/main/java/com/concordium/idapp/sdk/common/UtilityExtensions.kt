@@ -8,6 +8,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.core.net.toUri
 
+private val SESSION_TOPIC_REGEX = Regex("^[0-9a-f]{64}$")
+
+private val WC_URI_REGEX = Regex(
+    """^wc:[0-9a-fA-F-]+@[12]\?bridge=.+&key=[0-9a-fA-F]+$"""
+)
+
+fun String.isValidWalletConnectUri(): Boolean {
+    val walletConnectUriPattern = """^wc:[a-fA-F0-9]{64}@2\?relay-protocol=[a-zA-Z]+&symKey=[a-fA-F0-9]{64}$""".toRegex()
+    return walletConnectUriPattern.matches(this)
+}
 internal fun handleAppDeepLink(
     deeplink: String,
     context: Context,
