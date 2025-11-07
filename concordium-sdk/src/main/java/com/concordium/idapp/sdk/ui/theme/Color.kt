@@ -1,4 +1,4 @@
-package com.concordium.sdk.ui.theme
+package com.concordium.idapp.sdk.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

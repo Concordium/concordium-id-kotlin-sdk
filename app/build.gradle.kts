@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.concordium.sdk.app"
+    namespace = "com.concordium.idapp.sdk.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.concordium.sdk.app"
+        applicationId = "com.concordium.idapp.sdk.app"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

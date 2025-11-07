@@ -1,4 +1,4 @@
-package com.concordium.sdk.ui
+package com.concordium.idapp.sdk.ui
 
 import android.graphics.Bitmap
 import android.graphics.Color

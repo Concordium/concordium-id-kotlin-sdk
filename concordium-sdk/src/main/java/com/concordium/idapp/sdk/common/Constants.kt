@@ -1,4 +1,4 @@
-package com.concordium.sdk.common
+package com.concordium.idapp.sdk.common
 
 internal object Constants {
     const val MOBILE_URI_LINK = "concordiumidapp://wallet-connect?encodedUri="

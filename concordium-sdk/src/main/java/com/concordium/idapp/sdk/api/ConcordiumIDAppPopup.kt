@@ -1,4 +1,4 @@
-package com.concordium.sdk.api
+package com.concordium.idapp.sdk.api
 
 import android.content.Intent
 import com.concordium.sdk.api.ConcordiumIDAppSDK.checkForInitialization

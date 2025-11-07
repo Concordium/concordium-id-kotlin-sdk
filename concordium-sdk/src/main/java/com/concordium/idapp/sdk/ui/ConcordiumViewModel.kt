@@ -1,4 +1,4 @@
-package com.concordium.sdk.ui
+package com.concordium.idapp.sdk.ui
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel

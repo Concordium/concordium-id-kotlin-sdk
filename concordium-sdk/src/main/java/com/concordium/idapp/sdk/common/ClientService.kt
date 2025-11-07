@@ -1,4 +1,4 @@
-package com.concordium.sdk.common
+package com.concordium.idapp.sdk.common
 
 import com.concordium.sdk.ClientV2
 import com.concordium.sdk.Connection

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.concordium.sdk"
+    namespace = "com.concordium.idapp.sdk"
     compileSdk = 36
 
     defaultConfig {

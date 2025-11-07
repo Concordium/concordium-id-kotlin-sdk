@@ -1,4 +1,4 @@
-package com.concordium.sdk.ui.model
+package com.concordium.idapp.sdk.ui.model
 
 internal sealed interface AccountAction {
     object Recover : AccountAction

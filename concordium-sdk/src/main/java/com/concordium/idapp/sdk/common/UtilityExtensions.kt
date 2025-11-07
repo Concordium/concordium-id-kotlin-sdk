@@ -1,4 +1,4 @@
-package com.concordium.sdk.common
+package com.concordium.idapp.sdk.common
 
 import android.content.Context
 import android.content.Intent

@@ -1,10 +1,10 @@
-package com.concordium.sdk.common
+package com.concordium.idapp.sdk.common
 
 import android.util.Log
 import com.concordium.sdk.api.ConcordiumIDAppSDK
 
 internal object Logger {
-    private const val TAG = "Concord-SDK"
+    private const val TAG = "Concordium-IDApp-SDK"
     private val isDebug = ConcordiumIDAppSDK.enableDebugging
 
     fun d(message: String) {

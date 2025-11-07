@@ -1,4 +1,4 @@
-package com.concordium.sdk.api
+package com.concordium.idapp.sdk.api
 
 import android.annotation.SuppressLint
 import android.content.Context

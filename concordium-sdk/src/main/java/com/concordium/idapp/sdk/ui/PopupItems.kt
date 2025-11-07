@@ -1,4 +1,4 @@
-package com.concordium.sdk.ui
+package com.concordium.idapp.sdk.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas

@@ -1,4 +1,4 @@
-package com.concordium.sdk.api.model
+package com.concordium.idapp.sdk.api.model
 
 interface CCDAccountKeyPair {
     val publicKey: String

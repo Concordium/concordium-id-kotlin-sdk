@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.concordium.sdk.ui
+package com.concordium.idapp.sdk.ui
 
 import android.content.Context
 import android.content.Intent
