@@ -1,5 +1,6 @@
 package com.concordium.sdk.app
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -16,12 +17,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,6 +65,9 @@ internal class MainActivity : ComponentActivity() {
     }
 }
 
+const val PREFS_NAME = "ConcordiumIdAppPrefs"
+const val SEED_PHRASE_KEY = "seed_phrase_key"
+
 @Composable
 fun ConcordiumScreen(
     content: String,
@@ -69,11 +75,14 @@ fun ConcordiumScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val sharedPreferences = remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
+    var seedPhrase by rememberSaveable { mutableStateOf(sharedPreferences.getString(SEED_PHRASE_KEY, DUMMY_SEED_PHRASE) ?: DUMMY_SEED_PHRASE) }
+    var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
+    var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
         callback()
     }
-    var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
-    var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
 
     Column {
         Text(
@@ -94,9 +103,25 @@ fun ConcordiumScreen(
                 alignment = Alignment.CenterVertically
             )
         ) {
+            OutlinedTextField(
+                value = seedPhrase,
+                onValueChange = { seedPhrase = it },
+                label = { Text("Seed Phrase") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Button(onClick = {
+                with(sharedPreferences.edit()) {
+                    putString(SEED_PHRASE_KEY, seedPhrase)
+                    apply()
+                }
+                Toast.makeText(context, "Seed phrase saved", Toast.LENGTH_SHORT).show()
+            }) {
+                Text(text = "Save Seed Phrase")
+            }
+
             Button(onClick = {
                 ConcordiumIDAppSDK.signAndSubmit(
-                    seedPhrase = DUMMY_SEED_PHRASE,
+                    seedPhrase = seedPhrase,
                     serializedCredentialDeploymentTransaction = readJsonFromAssets(
                         context = context,
                         fileName = TRANX_FILE_NAME,
