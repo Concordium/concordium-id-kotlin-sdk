@@ -11,4 +11,6 @@
     <string name="at_least_one_box_must_be_checked">at least one box must be checked</string>
     <string name="seed_phrase_and_transaction_title">Seed Phrase and Transaction</string>
     <string name="deeplink_and_actions_title">Deeplink and Actions</string>
+    <string name="network_testnet">Testnet</string>
+    <string name="network_mainnet">Mainnet</string>
 </resources>

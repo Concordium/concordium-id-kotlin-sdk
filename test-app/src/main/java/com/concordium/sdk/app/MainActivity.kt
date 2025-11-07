@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -80,6 +82,8 @@ fun ConcordiumScreen(
     var seedPhrase by rememberSaveable { mutableStateOf(sharedPreferences.getString(SEED_PHRASE_KEY, DUMMY_SEED_PHRASE) ?: DUMMY_SEED_PHRASE) }
     var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
     var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
+    var isMainnetNetwork by rememberSaveable { mutableStateOf(false) }
+    val network = if (isMainnetNetwork) Network.MAINNET else Network.TESTNET
 
     LaunchedEffect(Unit) {
         callback()
@@ -107,16 +111,8 @@ fun ConcordiumScreen(
                     sharedPreferences.edit(commit = true) { putString(SEED_PHRASE_KEY, seedPhrase) }
                     Toast.makeText(context, R.string.seed_phrase_saved, Toast.LENGTH_SHORT).show()
                 },
-                onSignAndSubmitClick = {
-                    ConcordiumIDAppSDK.signAndSubmit(
-                        seedPhrase = seedPhrase,
-                        serializedCredentialDeploymentTransaction = readJsonFromAssets(
-                            context = context,
-                            fileName = TRANX_FILE_NAME,
-                        ),
-                        network = Network.TESTNET,
-                    )
-                }
+                network = network,
+                context = context
             )
 
             Spacer(Modifier.height(32.dp))
@@ -158,6 +154,23 @@ fun ConcordiumScreen(
                     }
                 }
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(id = R.string.network_testnet))
+                Spacer(modifier = Modifier.width(8.dp))
+                Switch(
+                    checked = isMainnetNetwork,
+                    onCheckedChange = { isMainnetNetwork = it }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(id = R.string.network_mainnet))
+            }
         }
     }
 }
@@ -167,7 +180,8 @@ private fun SeedPhraseAndTransactionSection(
     seedPhrase: String,
     onSeedPhraseChange: (String) -> Unit,
     onSaveClick: () -> Unit,
-    onSignAndSubmitClick: () -> Unit
+    network: Network,
+    context: Context
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = stringResource(id = R.string.seed_phrase_and_transaction_title), style = Typography.titleMedium)
@@ -183,7 +197,16 @@ private fun SeedPhraseAndTransactionSection(
             Text(text = stringResource(id = R.string.save_seed_phrase))
         }
         Spacer(Modifier.height(8.dp))
-        Button(onClick = onSignAndSubmitClick) {
+        Button(onClick = {
+            ConcordiumIDAppSDK.signAndSubmit(
+                seedPhrase = seedPhrase,
+                serializedCredentialDeploymentTransaction = readJsonFromAssets(
+                    context = context,
+                    fileName = TRANX_FILE_NAME,
+                ),
+                network = network,
+            )
+        }) {
             Text(
                 text = stringResource(R.string.sign_submit_traxn),
             )
