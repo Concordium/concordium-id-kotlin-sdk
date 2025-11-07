@@ -100,73 +100,40 @@ fun ConcordiumScreen(
                 .padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Seed Phrase and Transaction Section
-            Text(text = stringResource(id = R.string.seed_phrase_and_transaction_title), style = Typography.titleMedium)
-            Spacer(Modifier.height(16.dp))
-            OutlinedTextField(
-                value = seedPhrase,
-                onValueChange = { seedPhrase = it },
-                label = { Text(stringResource(id = R.string.seed_phrase_label)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(8.dp))
-            Button(onClick = {
-                sharedPreferences.edit(commit = true) { putString(SEED_PHRASE_KEY, seedPhrase) }
-                Toast.makeText(context, R.string.seed_phrase_saved, Toast.LENGTH_SHORT).show()
-            }) {
-                Text(text = stringResource(id = R.string.save_seed_phrase))
-            }
-            Spacer(Modifier.height(8.dp))
-            Button(onClick = {
-                ConcordiumIDAppSDK.signAndSubmit(
-                    seedPhrase = seedPhrase,
-                    serializedCredentialDeploymentTransaction = readJsonFromAssets(
-                        context = context,
-                        fileName = TRANX_FILE_NAME,
-                    ),
-                    network = Network.TESTNET,
-                )
-            }) {
-                Text(
-                    text = stringResource(R.string.sign_submit_traxn),
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(16.dp))
-
-            // Deeplink and Actions Section
-            Text(text = stringResource(id = R.string.deeplink_and_actions_title), style = Typography.titleMedium)
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = {
-                ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-                    walletConnectUri = walletConnectUri,
-                )
-            }) {
-                Text(
-                    text = stringResource(R.string.open_deeplink_popup),
-                )
-            }
-            Spacer(Modifier.height(24.dp))
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = isCreateAccountChecked,
-                        onCheckedChange = { isCreateAccountChecked = it })
-                    Text(text = stringResource(id = R.string.create_account_label))
-                    Spacer(Modifier.width(16.dp))
-                    Checkbox(
-                        checked = isRecoverAccountChecked,
-                        onCheckedChange = { isRecoverAccountChecked = it })
-                    Text(text = stringResource(id = R.string.recover_account_label))
+            SeedPhraseAndTransactionSection(
+                seedPhrase = seedPhrase,
+                onSeedPhraseChange = { seedPhrase = it },
+                onSaveClick = {
+                    sharedPreferences.edit(commit = true) { putString(SEED_PHRASE_KEY, seedPhrase) }
+                    Toast.makeText(context, R.string.seed_phrase_saved, Toast.LENGTH_SHORT).show()
+                },
+                onSignAndSubmitClick = {
+                    ConcordiumIDAppSDK.signAndSubmit(
+                        seedPhrase = seedPhrase,
+                        serializedCredentialDeploymentTransaction = readJsonFromAssets(
+                            context = context,
+                            fileName = TRANX_FILE_NAME,
+                        ),
+                        network = Network.TESTNET,
+                    )
                 }
-                Button(onClick = {
+            )
+
+            Spacer(Modifier.height(32.dp))
+            HorizontalDivider()
+            Spacer(Modifier.height(32.dp))
+
+            DeeplinkAndActionsSection(
+                isCreateAccountChecked = isCreateAccountChecked,
+                onIsCreateAccountCheckedChange = { isCreateAccountChecked = it },
+                isRecoverAccountChecked = isRecoverAccountChecked,
+                onIsRecoverAccountCheckedChange = { isRecoverAccountChecked = it },
+                onInvokeDeeplinkClick = {
+                    ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+                        walletConnectUri = walletConnectUri,
+                    )
+                },
+                onInvokeActionsClick = {
                     runCatching {
                         ConcordiumIDAppPopup.invokeIdAppActionsPopup(
                             walletConnectSessionTopic = walletConnectSessionTopic,
@@ -189,12 +156,79 @@ fun ConcordiumScreen(
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                }) {
-                    Text(
-                        text = stringResource(R.string.open_actions_popup),
-                    )
                 }
-            }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SeedPhraseAndTransactionSection(
+    seedPhrase: String,
+    onSeedPhraseChange: (String) -> Unit,
+    onSaveClick: () -> Unit,
+    onSignAndSubmitClick: () -> Unit
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = stringResource(id = R.string.seed_phrase_and_transaction_title), style = Typography.titleMedium)
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            value = seedPhrase,
+            onValueChange = onSeedPhraseChange,
+            label = { Text(stringResource(id = R.string.seed_phrase_label)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = onSaveClick) {
+            Text(text = stringResource(id = R.string.save_seed_phrase))
+        }
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = onSignAndSubmitClick) {
+            Text(
+                text = stringResource(R.string.sign_submit_traxn),
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeeplinkAndActionsSection(
+    isCreateAccountChecked: Boolean,
+    onIsCreateAccountCheckedChange: (Boolean) -> Unit,
+    isRecoverAccountChecked: Boolean,
+    onIsRecoverAccountCheckedChange: (Boolean) -> Unit,
+    onInvokeDeeplinkClick: () -> Unit,
+    onInvokeActionsClick: () -> Unit
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = stringResource(id = R.string.deeplink_and_actions_title), style = Typography.titleMedium)
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = onInvokeDeeplinkClick) {
+            Text(
+                text = stringResource(R.string.open_deeplink_popup),
+            )
+        }
+        Spacer(Modifier.height(24.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = isCreateAccountChecked,
+                onCheckedChange = onIsCreateAccountCheckedChange
+            )
+            Text(text = stringResource(id = R.string.create_account_label))
+            Spacer(Modifier.width(16.dp))
+            Checkbox(
+                checked = isRecoverAccountChecked,
+                onCheckedChange = onIsRecoverAccountCheckedChange
+            )
+            Text(text = stringResource(id = R.string.recover_account_label))
+        }
+        Button(onClick = onInvokeActionsClick) {
+            Text(
+                text = stringResource(R.string.open_actions_popup),
+            )
         }
     }
 }
