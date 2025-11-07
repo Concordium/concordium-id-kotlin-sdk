@@ -1,7 +1,6 @@
 [versions]
 agp = "8.10.1"
 concordiumAndroidSdk = "11.1.0"
-concordiumSdk = "11.1.0"
 core = "3.5.3"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
@@ -34,7 +33,6 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 concordium-android-sdk = { module = "com.concordium.sdk:concordium-android-sdk", version.ref = "concordiumAndroidSdk" }
-concordium-sdk = { module = "com.concordium.sdk:concordium-sdk", version.ref = "concordiumSdk" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "core" }
 
 [plugins]

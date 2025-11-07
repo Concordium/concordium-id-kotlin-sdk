@@ -97,8 +97,8 @@ fun ConcordiumScreen(
                 ConcordiumIDAppSDK.signAndSubmit(
                     seedPhrase = DUMMY_SEED_PHRASE,
                     inputTranx = readJsonFromAssets(
-                        context,
-                        "tranx.json"
+                        context = context,
+                        fileName = "tranx.json"
                     ),
                     network = Network.TESTNET,
                 )
