@@ -78,16 +78,7 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
                 }
             }
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            overrideActivityTransition(
-                OVERRIDE_TRANSITION_OPEN,
-                0,
-                0,
-            )
-        } else {
-            overridePendingTransition(0, 0)
-        }
+        hideStartAnimation()
 
         if (savedInstanceState == null) {
             viewModel.initialize(intent)
@@ -105,6 +96,22 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
 
     override fun finish() {
         super.finish()
+        hideFinishTransition()
+    }
+
+    private fun hideStartAnimation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_OPEN,
+                0,
+                0,
+            )
+        } else {
+            overridePendingTransition(0, 0)
+        }
+    }
+
+    private fun hideFinishTransition() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
                 OVERRIDE_TRANSITION_CLOSE, 0, // Enter animation

@@ -78,8 +78,16 @@ fun ConcordiumScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val sharedPreferences = remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
-    var seedPhrase by rememberSaveable { mutableStateOf(sharedPreferences.getString(SEED_PHRASE_KEY, DUMMY_SEED_PHRASE) ?: DUMMY_SEED_PHRASE) }
+    val sharedPreferences =
+        remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
+    var seedPhrase by rememberSaveable {
+        mutableStateOf(
+            sharedPreferences.getString(
+                SEED_PHRASE_KEY,
+                DUMMY_SEED_PHRASE
+            ) ?: DUMMY_SEED_PHRASE
+        )
+    }
     var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
     var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
     var isMainnetNetwork by rememberSaveable { mutableStateOf(false) }
@@ -130,6 +138,14 @@ fun ConcordiumScreen(
                     )
                 },
                 onInvokeActionsClick = {
+                    if (isCreateAccountChecked.not() && isRecoverAccountChecked.not()) {
+                        Toast.makeText(
+                            context,
+                            R.string.at_least_one_box_must_be_checked,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@DeeplinkAndActionsSection
+                    }
                     runCatching {
                         ConcordiumIDAppPopup.invokeIdAppActionsPopup(
                             walletConnectSessionTopic = walletConnectSessionTopic,
@@ -148,7 +164,7 @@ fun ConcordiumScreen(
                         it.printStackTrace()
                         Toast.makeText(
                             context,
-                            R.string.at_least_one_box_must_be_checked,
+                            it.message,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -184,7 +200,10 @@ private fun SeedPhraseAndTransactionSection(
     context: Context
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = stringResource(id = R.string.seed_phrase_and_transaction_title), style = Typography.titleMedium)
+        Text(
+            text = stringResource(id = R.string.seed_phrase_and_transaction_title),
+            style = Typography.titleMedium
+        )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
             value = seedPhrase,
@@ -198,14 +217,29 @@ private fun SeedPhraseAndTransactionSection(
         }
         Spacer(Modifier.height(8.dp))
         Button(onClick = {
-            ConcordiumIDAppSDK.signAndSubmit(
-                seedPhrase = seedPhrase,
-                serializedCredentialDeploymentTransaction = readJsonFromAssets(
-                    context = context,
-                    fileName = TRANX_FILE_NAME,
-                ),
-                network = network,
-            )
+            runCatching {
+                ConcordiumIDAppSDK.signAndSubmit(
+                    seedPhrase = seedPhrase,
+                    serializedCredentialDeploymentTransaction = readJsonFromAssets(
+                        context = context,
+                        fileName = TRANX_FILE_NAME,
+                    ),
+                    network = network,
+                )
+            }.onFailure {
+                it.printStackTrace()
+                Toast.makeText(
+                    context,
+                    it.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }.onSuccess {
+                Toast.makeText(
+                    context,
+                    R.string.sign_submit_success,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }) {
             Text(
                 text = stringResource(R.string.sign_submit_traxn),
@@ -224,7 +258,10 @@ private fun DeeplinkAndActionsSection(
     onInvokeActionsClick: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = stringResource(id = R.string.deeplink_and_actions_title), style = Typography.titleMedium)
+        Text(
+            text = stringResource(id = R.string.deeplink_and_actions_title),
+            style = Typography.titleMedium
+        )
         Spacer(Modifier.height(16.dp))
         Button(onClick = onInvokeDeeplinkClick) {
             Text(

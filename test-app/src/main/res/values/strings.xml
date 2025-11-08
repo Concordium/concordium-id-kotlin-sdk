@@ -13,4 +13,5 @@
     <string name="deeplink_and_actions_title">Deeplink and Actions</string>
     <string name="network_testnet">Testnet</string>
     <string name="network_mainnet">Mainnet</string>
+    <string name="sign_submit_success" />
 </resources>

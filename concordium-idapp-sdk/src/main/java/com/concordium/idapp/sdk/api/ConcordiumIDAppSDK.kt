@@ -52,14 +52,24 @@ object ConcordiumIDAppSDK {
     ): String {
         Logger.d("sign and submit tranx")
         // parse the transaction
-        val json = JSONObject(serializedCredentialDeploymentTransaction)
-        val unsignedCdiText = json.getString(KEY_UNSIGNED_STR)
-        val expiryInMs = json.getLong(KEY_EXPIRY)
+        var unsignedCdiText: String? = null
+        var expiryInMs = 0L
+        var unsignedCdi: UnsignedCredentialDeploymentInfo? = null
+        try {
+            val json = JSONObject(serializedCredentialDeploymentTransaction)
+            unsignedCdiText = json.getString(KEY_UNSIGNED_STR)
+            expiryInMs = json.getLong(KEY_EXPIRY)
 
-        val unsignedCdi = JsonMapper.INSTANCE.readValue(
-            unsignedCdiText,
-            UnsignedCredentialDeploymentInfo::class.java
-        )
+            unsignedCdi = JsonMapper.INSTANCE.readValue(
+                unsignedCdiText,
+                UnsignedCredentialDeploymentInfo::class.java
+            )
+        } catch (e: Exception) {
+            Logger.e("Error parsing serialized CredentialDeploymentTransaction: $e")
+        }
+        require(unsignedCdiText != null && expiryInMs > 0 && unsignedCdi != null) {
+            "Error parsing serialized credential deployment transaction"
+        }
         Logger.d("unsignedCdi: $unsignedCdiText")
         Logger.d("expiryInMs : $expiryInMs")
 
