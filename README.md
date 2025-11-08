@@ -38,10 +38,11 @@ include(":libs:concordium-idapp-sdk")
 ```kotlin
 dependencies {
     implementation(project(":libs:concordium-idapp-sdk"))
+    implementation("com.concordium.sdk:concordium-android-sdk:11.1.0")
 }
 ```
 
-### Option 2: Maven Repository(Yet to be Live)
+### Option 2: Maven Repository (Yet to be Live)
 If you prefer using dependency management:
 
 ```kotlin
