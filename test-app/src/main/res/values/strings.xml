@@ -4,7 +4,6 @@
     <string name="open_actions_popup">Open Actions popup</string>
     <string name="sign_submit_traxn">Sign and submit transaction</string>
     <string name="seed_phrase_label">Seed Phrase</string>
-    <string name="save_seed_phrase">Save Seed Phrase</string>
     <string name="seed_phrase_saved">Seed phrase saved</string>
     <string name="create_account_label">Create account</string>
     <string name="recover_account_label">Recover account</string>
@@ -13,5 +12,6 @@
     <string name="deeplink_and_actions_title">Deeplink and Actions</string>
     <string name="network_testnet">Testnet</string>
     <string name="network_mainnet">Mainnet</string>
-    <string name="sign_submit_success" />
+    <string name="sign_submit_success">sign submit success</string>
+    <string name="save">Save</string>
 </resources>

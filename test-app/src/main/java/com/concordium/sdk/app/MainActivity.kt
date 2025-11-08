@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
@@ -41,6 +42,8 @@ import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
 import com.concordium.idapp.sdk.app.R
 import com.concordium.sdk.app.AppConstants.DUMMY_SEED_PHRASE
+import com.concordium.sdk.app.AppConstants.PREFS_NAME
+import com.concordium.sdk.app.AppConstants.SEED_PHRASE_KEY
 import com.concordium.sdk.app.AppConstants.TRANX_FILE_NAME
 import com.concordium.sdk.app.ui.theme.ConcordiumIdAppSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Typography
@@ -68,28 +71,12 @@ internal class MainActivity : ComponentActivity() {
     }
 }
 
-const val PREFS_NAME = "ConcordiumIdAppPrefs"
-const val SEED_PHRASE_KEY = "seed_phrase_key"
-
 @Composable
 fun ConcordiumScreen(
     content: String,
     callback: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val sharedPreferences =
-        remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
-    var seedPhrase by rememberSaveable {
-        mutableStateOf(
-            sharedPreferences.getString(
-                SEED_PHRASE_KEY,
-                DUMMY_SEED_PHRASE
-            ) ?: DUMMY_SEED_PHRASE
-        )
-    }
-    var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
-    var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
     var isMainnetNetwork by rememberSaveable { mutableStateOf(false) }
     val network = if (isMainnetNetwork) Network.MAINNET else Network.TESTNET
 
@@ -97,125 +84,85 @@ fun ConcordiumScreen(
         callback()
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = content,
-            style = Typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 64.dp)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            SeedPhraseAndTransactionSection(
-                seedPhrase = seedPhrase,
-                onSeedPhraseChange = { seedPhrase = it },
-                onSaveClick = {
-                    sharedPreferences.edit(commit = true) { putString(SEED_PHRASE_KEY, seedPhrase) }
-                    Toast.makeText(context, R.string.seed_phrase_saved, Toast.LENGTH_SHORT).show()
-                },
-                network = network,
-                context = context
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        stickyHeader {
+            Text(
+                text = content,
+                style = Typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 64.dp)
             )
-
-            Spacer(Modifier.height(32.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(32.dp))
-
-            DeeplinkAndActionsSection(
-                isCreateAccountChecked = isCreateAccountChecked,
-                onIsCreateAccountCheckedChange = { isCreateAccountChecked = it },
-                isRecoverAccountChecked = isRecoverAccountChecked,
-                onIsRecoverAccountCheckedChange = { isRecoverAccountChecked = it },
-                onInvokeDeeplinkClick = {
-                    ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-                        walletConnectUri = walletConnectUri,
-                    )
-                },
-                onInvokeActionsClick = {
-                    if (isCreateAccountChecked.not() && isRecoverAccountChecked.not()) {
-                        Toast.makeText(
-                            context,
-                            R.string.at_least_one_box_must_be_checked,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@DeeplinkAndActionsSection
-                    }
-                    runCatching {
-                        ConcordiumIDAppPopup.invokeIdAppActionsPopup(
-                            walletConnectSessionTopic = walletConnectSessionTopic,
-                            onCreateAccount = if (isCreateAccountChecked) {
-                                {
-                                    println("onCreate Account")
-                                }
-                            } else null,
-                            onRecoverAccount = if (isRecoverAccountChecked) {
-                                {
-                                    println("onRecover Account")
-                                }
-                            } else null,
-                        )
-                    }.onFailure {
-                        it.printStackTrace()
-                        Toast.makeText(
-                            context,
-                            it.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+        }
+        item { SeedPhraseAndTransactionSection(network = network) }
+        item { HorizontalDivider(modifier.padding(top = 24.dp)) }
+        item { DeeplinkAndActionsSection() }
+        item { Spacer(Modifier.height(32.dp)) }
+        item {
+            NetworkSwitchContainer(
+                isMainnetNetwork = isMainnetNetwork,
+                onIsMainnetNetworkChange = { isMainnetNetwork = it }
             )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = stringResource(id = R.string.network_testnet))
-                Spacer(modifier = Modifier.width(8.dp))
-                Switch(
-                    checked = isMainnetNetwork,
-                    onCheckedChange = { isMainnetNetwork = it }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = stringResource(id = R.string.network_mainnet))
-            }
         }
     }
 }
 
 @Composable
-private fun SeedPhraseAndTransactionSection(
-    seedPhrase: String,
-    onSeedPhraseChange: (String) -> Unit,
-    onSaveClick: () -> Unit,
-    network: Network,
-    context: Context
+private fun NetworkSwitchContainer(
+    isMainnetNetwork: Boolean,
+    onIsMainnetNetworkChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = stringResource(id = R.string.network_testnet))
+        Spacer(modifier = Modifier.width(8.dp))
+        Switch(
+            checked = isMainnetNetwork,
+            onCheckedChange = onIsMainnetNetworkChange
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = stringResource(id = R.string.network_mainnet))
+    }
+}
+
+@Composable
+private fun SeedPhraseAndTransactionSection(
+    network: Network,
+) {
+    val context = LocalContext.current
+    val sharedPreferences =
+        remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
+
+    var seedPhrase by rememberSaveable {
+        mutableStateOf(
+            sharedPreferences.getString(SEED_PHRASE_KEY, DUMMY_SEED_PHRASE) ?: DUMMY_SEED_PHRASE
+        )
+    }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(id = R.string.seed_phrase_and_transaction_title),
             style = Typography.titleMedium
         )
         Spacer(Modifier.height(16.dp))
-        OutlinedTextField(
+        EditableInputContainer(
             value = seedPhrase,
-            onValueChange = onSeedPhraseChange,
-            label = { Text(stringResource(id = R.string.seed_phrase_label)) },
-            modifier = Modifier.fillMaxWidth()
+            prefKey = SEED_PHRASE_KEY,
+            label = stringResource(id = R.string.seed_phrase_label),
+            onUpdateCallback = { seedPhrase = it }
         )
-        Spacer(Modifier.height(8.dp))
-        Button(onClick = onSaveClick) {
-            Text(text = stringResource(id = R.string.save_seed_phrase))
-        }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
         Button(onClick = {
             runCatching {
                 ConcordiumIDAppSDK.signAndSubmit(
@@ -250,45 +197,115 @@ private fun SeedPhraseAndTransactionSection(
 
 @Composable
 private fun DeeplinkAndActionsSection(
-    isCreateAccountChecked: Boolean,
-    onIsCreateAccountCheckedChange: (Boolean) -> Unit,
-    isRecoverAccountChecked: Boolean,
-    onIsRecoverAccountCheckedChange: (Boolean) -> Unit,
-    onInvokeDeeplinkClick: () -> Unit,
-    onInvokeActionsClick: () -> Unit
+    modifier: Modifier = Modifier,
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    val context = LocalContext.current
+    var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
+    var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
+
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(id = R.string.deeplink_and_actions_title),
             style = Typography.titleMedium
         )
-        Spacer(Modifier.height(16.dp))
-        Button(onClick = onInvokeDeeplinkClick) {
+        Spacer(Modifier.height(24.dp))
+        Button(onClick = {
+            if (isCreateAccountChecked.not() && isRecoverAccountChecked.not()) {
+                Toast.makeText(
+                    context,
+                    R.string.at_least_one_box_must_be_checked,
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@Button
+            }
+            runCatching {
+                ConcordiumIDAppPopup.invokeIdAppActionsPopup(
+                    walletConnectSessionTopic = walletConnectSessionTopic,
+                    onCreateAccount = if (isCreateAccountChecked) {
+                        {
+                            println("onCreate Account")
+                        }
+                    } else null,
+                    onRecoverAccount = if (isRecoverAccountChecked) {
+                        {
+                            println("onRecover Account")
+                        }
+                    } else null,
+                )
+            }.onFailure {
+                it.printStackTrace()
+                Toast.makeText(
+                    context,
+                    it.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }) {
             Text(
                 text = stringResource(R.string.open_deeplink_popup),
             )
         }
-        Spacer(Modifier.height(24.dp))
-
+        Spacer(Modifier.height(32.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
                 checked = isCreateAccountChecked,
-                onCheckedChange = onIsCreateAccountCheckedChange
+                onCheckedChange = { isCreateAccountChecked = it }
             )
             Text(text = stringResource(id = R.string.create_account_label))
             Spacer(Modifier.width(16.dp))
             Checkbox(
                 checked = isRecoverAccountChecked,
-                onCheckedChange = onIsRecoverAccountCheckedChange
+                onCheckedChange = { isRecoverAccountChecked = it }
             )
             Text(text = stringResource(id = R.string.recover_account_label))
         }
-        Button(onClick = onInvokeActionsClick) {
+        Button(onClick = {
+            ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+                walletConnectUri = walletConnectUri,
+            )
+        }) {
             Text(
                 text = stringResource(R.string.open_actions_popup),
             )
+        }
+    }
+}
+
+@Composable
+private fun EditableInputContainer(
+    prefKey: String,
+    label: String,
+    value: String,
+    onUpdateCallback: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val sharedPreferences =
+        remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
+
+    var currText by rememberSaveable(value) {
+        mutableStateOf(value)
+    }
+    Column(
+        modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.End,
+    ) {
+        OutlinedTextField(
+            value = currText,
+            onValueChange = { currText = it },
+            label = { Text(text = label) },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = {
+            sharedPreferences.edit(commit = true) { putString(prefKey, currText) }
+            onUpdateCallback.invoke(currText)
+            Toast.makeText(context, "$label saved successfully", Toast.LENGTH_SHORT).show()
+
+        }) {
+            Text(text = stringResource(id = R.string.save))
         }
     }
 }
