@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
+import com.concordium.idapp.sdk.app.BuildConfig
 import com.concordium.idapp.sdk.app.R
 import com.concordium.sdk.app.AppConstants.DUMMY_SEED_PHRASE
 import com.concordium.sdk.app.AppConstants.PREFS_NAME
@@ -48,10 +49,6 @@ import com.concordium.sdk.app.AppConstants.TRANX_FILE_NAME
 import com.concordium.sdk.app.ui.theme.ConcordiumIdAppSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
-
-private const val walletConnectUri =
-    "wc:2b4e5df1-91e3-4c62-9d0a-dc2318a1f2d2@2?relay-protocol=irn&symKey=dcf9e8f542e24435b7d4a6785a1e8b32e2b03728f6b6a8a5c6e4d1b6b3a9d8cf"
-private const val walletConnectSessionTopic = "dcf9e8f542e24435b7d4a6785a1e8b32e2b"
 
 internal class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -210,36 +207,9 @@ private fun DeeplinkAndActionsSection(
         )
         Spacer(Modifier.height(24.dp))
         Button(onClick = {
-            if (isCreateAccountChecked.not() && isRecoverAccountChecked.not()) {
-                Toast.makeText(
-                    context,
-                    R.string.at_least_one_box_must_be_checked,
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@Button
-            }
-            runCatching {
-                ConcordiumIDAppPopup.invokeIdAppActionsPopup(
-                    walletConnectSessionTopic = walletConnectSessionTopic,
-                    onCreateAccount = if (isCreateAccountChecked) {
-                        {
-                            println("onCreate Account")
-                        }
-                    } else null,
-                    onRecoverAccount = if (isRecoverAccountChecked) {
-                        {
-                            println("onRecover Account")
-                        }
-                    } else null,
-                )
-            }.onFailure {
-                it.printStackTrace()
-                Toast.makeText(
-                    context,
-                    it.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+                walletConnectUri = BuildConfig.WC_URI,
+            )
         }) {
             Text(
                 text = stringResource(R.string.open_deeplink_popup),
@@ -262,9 +232,36 @@ private fun DeeplinkAndActionsSection(
             Text(text = stringResource(id = R.string.recover_account_label))
         }
         Button(onClick = {
-            ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-                walletConnectUri = walletConnectUri,
-            )
+            if (isCreateAccountChecked.not() && isRecoverAccountChecked.not()) {
+                Toast.makeText(
+                    context,
+                    R.string.at_least_one_box_must_be_checked,
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@Button
+            }
+            runCatching {
+                ConcordiumIDAppPopup.invokeIdAppActionsPopup(
+                    walletConnectSessionTopic = BuildConfig.WC_SESSION_TOPIC,
+                    onCreateAccount = if (isCreateAccountChecked) {
+                        {
+                            println("onCreate Account")
+                        }
+                    } else null,
+                    onRecoverAccount = if (isRecoverAccountChecked) {
+                        {
+                            println("onRecover Account")
+                        }
+                    } else null,
+                )
+            }.onFailure {
+                it.printStackTrace()
+                Toast.makeText(
+                    context,
+                    it.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }) {
             Text(
                 text = stringResource(R.string.open_actions_popup),
