@@ -50,7 +50,8 @@ object ConcordiumIDAppSDK {
         accountIndex: Int = 0,
         network: Network = Network.MAINNET,
     ): String {
-        Logger.d("sign and submit tranx")
+        Logger.d("sign and submit transaction")
+
         // parse the transaction
         var unsignedCdiText: String? = null
         var expiryInMs = 0L
@@ -70,8 +71,6 @@ object ConcordiumIDAppSDK {
         require(unsignedCdiText != null && expiryInMs > 0 && unsignedCdi != null) {
             "Error parsing serialized credential deployment transaction"
         }
-        Logger.d("unsignedCdi: $unsignedCdiText")
-        Logger.d("expiryInMs : $expiryInMs")
 
         // generate signature
         val expiry = Expiry.from(expiryInMs)
@@ -85,8 +84,6 @@ object ConcordiumIDAppSDK {
             accountIndex,
         )
         val signature = accountSigningKey.sign(credentialDeploymentSignDigest)
-        Logger.d("accountSigningKey: $accountSigningKey")
-        Logger.d("signature: $signature")
 
         // create payload tranx to send to blockchain
         val credentialDeploymentTransaction = createCredentialTransactionPayload(
@@ -137,6 +134,11 @@ object ConcordiumIDAppSDK {
         }
     }
 
+    /**
+     * create payload tranx to send to blockchain
+     * @param credentialDeploymentDetails
+     * @param signature
+     */
     private fun createCredentialTransactionPayload(
         credentialDeploymentDetails: CredentialDeploymentDetails,
         signature: ByteArray,
@@ -155,6 +157,11 @@ object ConcordiumIDAppSDK {
         return credentialDeploymentTransactionPayload
     }
 
+    /**
+    * Send payload to blockchain
+    * @param network
+    * @param credentialDeploymentTransaction
+    */
     private fun submitCCDTransaction(
         network: Network,
         credentialDeploymentTransaction: CredentialDeploymentTransaction
