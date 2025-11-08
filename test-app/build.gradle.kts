@@ -25,6 +25,8 @@ android {
 
         buildConfigField("String", "WC_URI", localProperties.getProperty("WC_URI", ""))
         buildConfigField("String", "WC_SESSION_TOPIC", localProperties.getProperty("WC_SESSION_TOPIC", ""))
+        buildConfigField("String", "UNSIGNED_CDI_STRING", localProperties.getProperty("UNSIGNED_CDI_STRING", ""))
+        buildConfigField("Int", "EXPIRY", localProperties.getProperty("EXPIRY", ""))
     }
 
     buildTypes {

@@ -164,7 +164,7 @@ private fun SeedPhraseAndTransactionSection(
                 ConcordiumIDAppSDK.signAndSubmit(
                     seedPhrase = seedPhrase,
                     expiry = 1762596784,
-                    unsignedCdiStr = AppConstants.UNSIGNED_CDI_STRING,
+                    unsignedCdiStr = BuildConfig,
                     network = network,
                 )
             }.onFailure {
