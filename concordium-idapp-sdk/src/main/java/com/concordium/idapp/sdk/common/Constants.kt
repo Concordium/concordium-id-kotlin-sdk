@@ -6,12 +6,12 @@ internal sealed class Configuration(
 )
 
 internal data object Mainnet : Configuration(
-    grpcUrl = "https://grpc.mainnet.concordium.software",
+    grpcUrl = "grpc.mainnet.concordium.software",
     grpcPort = 20_000,
 )
 
 internal data object Testnet : Configuration(
-    grpcUrl = "https://grpc.testnet.concordium.com",
+    grpcUrl = "grpc.testnet.concordium.com",
     grpcPort = 20_000,
 )
 

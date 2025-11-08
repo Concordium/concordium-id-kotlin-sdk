@@ -16,7 +16,6 @@ import com.concordium.sdk.transactions.CredentialDeploymentTransaction
 import com.concordium.sdk.transactions.Expiry
 import com.concordium.sdk.transactions.Index
 import org.apache.commons.codec.binary.Hex
-import org.json.JSONObject
 import java.util.Collections
 
 @SuppressLint("StaticFieldLeak")
@@ -46,34 +45,29 @@ object ConcordiumIDAppSDK {
      */
     fun signAndSubmit(
         seedPhrase: String,
-        serializedCredentialDeploymentTransaction: String,
+        expiry: Long,
+        unsignedCdiStr: String,
         accountIndex: Int = 0,
         network: Network = Network.MAINNET,
     ): String {
         Logger.d("sign and submit transaction")
 
         // parse the transaction
-        var unsignedCdiText: String? = null
-        var expiryInMs = 0L
         var unsignedCdi: UnsignedCredentialDeploymentInfo? = null
         try {
-            val json = JSONObject(serializedCredentialDeploymentTransaction)
-            unsignedCdiText = json.getString(KEY_UNSIGNED_STR)
-            expiryInMs = json.getLong(KEY_EXPIRY)
-
             unsignedCdi = JsonMapper.INSTANCE.readValue(
-                unsignedCdiText,
+                unsignedCdiStr,
                 UnsignedCredentialDeploymentInfo::class.java
             )
         } catch (e: Exception) {
             Logger.e("Error parsing serialized CredentialDeploymentTransaction: $e")
         }
-        require(unsignedCdiText != null && expiryInMs > 0 && unsignedCdi != null) {
+        require( expiry > 0 && unsignedCdi != null) {
             "Error parsing serialized credential deployment transaction"
         }
 
         // generate signature
-        val expiry = Expiry.from(expiryInMs)
+        val expiry = Expiry.from(expiry)
         val wallet = ConcordiumHdWallet.fromSeedPhrase(seedPhrase, network)
         val credentialDeploymentDetails = CredentialDeploymentDetails(unsignedCdi, expiry)
         val credentialDeploymentSignDigest =

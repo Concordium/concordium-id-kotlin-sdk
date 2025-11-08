@@ -45,7 +45,6 @@ import com.concordium.idapp.sdk.app.R
 import com.concordium.sdk.app.AppConstants.DUMMY_SEED_PHRASE
 import com.concordium.sdk.app.AppConstants.PREFS_NAME
 import com.concordium.sdk.app.AppConstants.SEED_PHRASE_KEY
-import com.concordium.sdk.app.AppConstants.TRANX_FILE_NAME
 import com.concordium.sdk.app.ui.theme.ConcordiumIdAppSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
@@ -164,10 +163,8 @@ private fun SeedPhraseAndTransactionSection(
             runCatching {
                 ConcordiumIDAppSDK.signAndSubmit(
                     seedPhrase = seedPhrase,
-                    serializedCredentialDeploymentTransaction = readJsonFromAssets(
-                        context = context,
-                        fileName = TRANX_FILE_NAME,
-                    ),
+                    expiry = 1762596784,
+                    unsignedCdiStr = AppConstants.UNSIGNED_CDI_STRING,
                     network = network,
                 )
             }.onFailure {
@@ -189,6 +186,21 @@ private fun SeedPhraseAndTransactionSection(
                 text = stringResource(R.string.sign_submit_traxn),
             )
         }
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = {
+            val response = ConcordiumIDAppSDK.generateAccountWithSeedPhrase(
+                seedPhrase,
+                network = network,
+                accountIndex = 0,
+            )
+            println("response: ${response.publicKey} ${response.signingKey}")
+        }) {
+            Text(
+                text = stringResource(R.string.generate_key_pair),
+            )
+        }
+
+
     }
 }
 
