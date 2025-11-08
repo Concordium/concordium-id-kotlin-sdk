@@ -5,6 +5,34 @@ This file documents how to integrate the `concordium-idapp-sdk` Android library 
 ## Where to find the SDK
 - Module: `concordium-idapp-sdk`
 
+## Installation
+You can include the SDK in your project as a Git submodule (recommended for using the local module directly).
+
+1. Add the submodule to your repository:
+
+```bash
+git submodule add https://github.com/Concordium/concordium-id-kotlin-sdk.git libs/concordium-id-kotlin-sdk
+git submodule update --init --recursive
+```
+
+2. Include the module in your `settings.gradle.kts` (or `settings.gradle`):
+
+```kotlin
+include(":libs:concordium-idapp-sdk")
+```
+
+3. Add a project dependency in your app module's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation(project(":libs:concordium-idapp-sdk"))
+}
+```
+
+Notes:
+- If you prefer to publish the SDK to your Maven repository, add the published coordinates instead of using a submodule.
+- Make sure to run Gradle sync after adding the module to pick up the project dependency.
+
 ## Initialization
 Call the initializer early in your app (for example, in `Application.onCreate`):
 
