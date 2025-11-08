@@ -5,11 +5,16 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+object LocalProperties {
+    private val properties = Properties().apply {
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { load(it) }
+        }
+    }
 
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.inputStream().use { localProperties.load(it) }
+    fun getString(key: String, default: String = ""): String = properties.getProperty(key, default)
+    fun getLong(key: String, default: Long = 0L): Long = properties.getProperty(key)?.toLongOrNull() ?: default
 }
 
 android {
@@ -23,10 +28,14 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "WC_URI", localProperties.getProperty("WC_URI", ""))
-        buildConfigField("String", "WC_SESSION_TOPIC", localProperties.getProperty("WC_SESSION_TOPIC", ""))
-        buildConfigField("String", "UNSIGNED_CDI_STRING", localProperties.getProperty("UNSIGNED_CDI_STRING", ""))
-        buildConfigField("Int", "EXPIRY", localProperties.getProperty("EXPIRY", ""))
+        buildConfigField("String", "WC_URI", "\"${LocalProperties.getString("WC_URI")}\"")
+        buildConfigField("String", "WC_SESSION_TOPIC", "\"${LocalProperties.getString("WC_SESSION_TOPIC")}\"")
+        buildConfigField(
+            "String",
+            "UNSIGNED_CDI_STRING",
+            "\"${LocalProperties.getString("UNSIGNED_CDI_STRING").replace("\"", "\\\"")}\""
+        )
+        buildConfigField("long", "EXPIRY", "${LocalProperties.getLong("EXPIRY")}L")
     }
 
     buildTypes {
