@@ -1,160 +1,102 @@
-# Concordium ID Kotlin SDK
+# Concordium IDApp SDK — Integration Guide
 
-The Concordium ID Kotlin SDK enables Android developers to easily integrate Concordium blockchain functionality into their applications. This SDK provides a seamless way to interact with the Concordium blockchain, manage accounts, and handle transactions.
+This file documents how to integrate the `concordium-idapp-sdk` Android library into a consumer app, and shows the public API and examples for common tasks.
 
-## Features
-
-- Account management (creation and recovery)
-- Transaction signing and submission
-- Deep link integration with Concordium ID App
-- QR code generation for wallet connect
-- Support for both Mainnet and Testnet
-
-## Installation
-
-Add the following dependency to your app's `build.gradle.kts`:
-
-```kotlin
-dependencies {
-    implementation("com.concordium.sdk:concordium-android-sdk:latest_version")
-}
-```
+## Where to find the SDK
+- Module: `concordium-idapp-sdk`
 
 ## Initialization
-
-Initialize the SDK in your Application class:
+Call the initializer early in your app (for example, in `Application.onCreate`):
 
 ```kotlin
-class YourApplication : Application() {
+import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
+
+class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        ConcordiumIDAppSDK.initialize(
-            context = applicationContext,
-            enableDebugLog = true // Set to false for production
-        )
+        ConcordiumIDAppSDK.initialize(this, enableDebugLog = false)
     }
 }
 ```
 
-## Usage
+## Public API (summary)
+The SDK exposes two main singletons and a small model interface:
 
-### 1. Sign and Submit Transactions
+1. `ConcordiumIDAppSDK` — core functionality
+   - `initialize(context: Context, enableDebugLog: Boolean = false)`
+   - `signAndSubmit(seedPhrase: String, expiry: Long, unsignedCdiStr: String, accountIndex: Int = 0, network: Network = Network.MAINNET): String`
+   - `generateAccountWithSeedPhrase(seed: String, network: Network, accountIndex: Int = 0): CCDAccountKeyPair`
+   - `clear()`
 
-```kotlin
-ConcordiumIDAppSDK.signAndSubmit(
-    seedPhrase = "your seed phrase here",
-    inputTranx = transactionJson,
-    accountIndex = 0, // optional, defaults to 0
-    network = Network.MAINNET // or Network.TESTNET
-)
-```
+2. `ConcordiumIDAppPopup` — helpers to launch ID App UI flows
+   - `invokeIdAppDeepLinkPopup(walletConnectUri: String)`
+   - `invokeIdAppActionsPopup(walletConnectSessionTopic: String? = null, onCreateAccount: (() -> Unit)? = null, onRecoverAccount: (() -> Unit)? = null)`
+   - `closePopup()`
 
-### 2. Generate Account with Seed Phrase
+3. `CCDAccountKeyPair` — model
+   - `val publicKey: String`
+   - `val signingKey: String`
 
-```kotlin
-val accountKeyPair = ConcordiumIDAppSDK.generateAccountWithSeedPhrase(
-    seed = "your seed phrase",
-    network = Network.MAINNET,
-    accountIndex = 0 // optional, defaults to 0
-)
+## Examples
 
-// Access the keys
-val publicKey = accountKeyPair.publicKey
-val signingKey = accountKeyPair.signingKey
-```
+### 1) Sign and submit a credential deployment transaction
 
-### 3. Invoke ID App Deep Link Popup
+Make sure `unsignedCdiStr` contains a valid JSON string matching `UnsignedCredentialDeploymentInfo`.
 
 ```kotlin
-ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-    walletConnectUri = "your-wallet-connect-uri"
-)
+import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
+import com.concordium.sdk.crypto.wallet.Network
+
+fun submit(seedPhrase: String, unsignedCdiJson: String) {
+    val expiryEpochSec = 1710000000L // choose appropriate expiry
+    val txHash = ConcordiumIDAppSDK.signAndSubmit(
+        seedPhrase = seedPhrase,
+        expiry = expiryEpochSec,
+        unsignedCdiStr = unsignedCdiJson,
+        accountIndex = 0,
+        network = Network.MAINNET,
+    )
+    println("Transaction hash: $txHash")
+}
 ```
 
-### 4. Invoke ID App Actions Popup
+### 2) Launching ID App deep-link flow
+
+```kotlin
+import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
+
+val walletConnectUri = "wc:...@2?relay-protocol=...&symKey=..."
+ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(walletConnectUri)
+```
+
+### 4) Present create/recover actions popup
 
 ```kotlin
 ConcordiumIDAppPopup.invokeIdAppActionsPopup(
-    walletConnectSessionTopic = "your-session-topic",
-    onCreateAccount = {
-        // Handle account creation
-    },
-    onRecoverAccount = {
-        // Handle account recovery
-    }
+    walletConnectSessionTopic = "abcd1234...",
+    onCreateAccount = { /* handle create */ },
+    onRecoverAccount = { /* handle recover */ },
 )
 ```
 
-### 5. Close ID App Popup
+### 3) Derive account keys from a seed phrase
 
 ```kotlin
-ConcordiumIDAppPopup.closePopup()
-```
+import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
+import com.concordium.idapp.sdk.api.model.CCDAccountKeyPair
+import com.concordium.sdk.crypto.wallet.Network
 
-## Android Manifest Configuration
-
-Add the following permissions and queries to your AndroidManifest.xml:
-
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-
-<queries>
-    <package android:name="com.idwallet.app" />
-</queries>
-```
-
-## Example Implementation
-
-Here's a basic example of implementing the SDK in an Activity:
-
-```kotlin
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        // Sign and submit a transaction
-        ConcordiumIDAppSDK.signAndSubmit(
-            seedPhrase = "your-seed-phrase",
-            inputTranx = readJsonFromAssets(context, "tranx.json"),
-            network = Network.TESTNET
-        )
-        
-        // Open deep link popup
-        ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-            walletConnectUri = "your-wallet-connect-uri"
-        )
-        
-        // Handle account actions
-        ConcordiumIDAppPopup.invokeIdAppActionsPopup(
-            walletConnectSessionTopic = "your-session-topic",
-            onCreateAccount = {
-                // Handle account creation
-            },
-            onRecoverAccount = {
-                // Handle account recovery
-            }
-        )
-    }
-}
-```
-
-## Error Handling
-
-The SDK provides proper error handling mechanisms. Always wrap SDK calls in try-catch blocks:
-
-```kotlin
-runCatching {
-    ConcordiumIDAppPopup.invokeIdAppActionsPopup(
-        walletConnectSessionTopic = sessionTopic,
-        onCreateAccount = { /* ... */ },
-        onRecoverAccount = { /* ... */ }
+fun showKeys(seed: String) {
+    val keys: CCDAccountKeyPair = ConcordiumIDAppSDK.generateAccountWithSeedPhrase(
+        seed = seed,
+        network = Network.MAINNET,
+        accountIndex = 0,
     )
-}.onFailure { error ->
-    // Handle errors appropriately
-    error.printStackTrace()
+
+    println("publicKey=${keys.publicKey}")
+    println("signingKey=${keys.signingKey}")
 }
 ```
-
 ## Cleanup
 
 When you're done using the SDK, make sure to clean up resources:
@@ -189,3 +131,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Support
 
 For support and questions, please [create an issue](https://github.com/Concordium/concordium-id-kotlin-sdk/issues) on our GitHub repository.
+
+## Notes & gotchas
+- Always call `ConcordiumIDAppSDK.initialize(context)` before any other function.
+- `signAndSubmit` parses the `unsignedCdiStr` JSON; ensure it is valid. The function will throw if parsing fails.
+- Network calls use the Concordium Java/Kotlin client; ensure correct network selection (`Network.MAINNET` vs `Network.TESTNET`) and permissions.
