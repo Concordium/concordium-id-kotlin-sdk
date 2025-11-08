@@ -87,7 +87,7 @@ fun ConcordiumScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        stickyHeader {
+        item {
             Text(
                 text = content,
                 style = Typography.headlineMedium,
