@@ -1,14 +1,26 @@
-# Concordium IDApp SDK — Integration Guide
+# Concordium IDApp SDK for Android
 
-This file documents how to integrate the `concordium-idapp-sdk` Android library into a consumer app, and shows the public API and examples for common tasks.
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-## Where to find the SDK
-- Module: `concordium-idapp-sdk`
+> Build secure and user-friendly blockchain applications with Concordium's official Android SDK
 
-## Installation
-You can include the SDK in your project as a Git submodule (recommended for using the local module directly).
+The Concordium IDApp SDK enables Android developers to seamlessly integrate Concordium blockchain functionality into their applications. This SDK provides a robust set of tools for account management, transaction signing, and secure interactions with the Concordium blockchain.
 
-1. Add the submodule to your repository:
+## 🚀 Features
+
+- 🔐 Secure account management and key generation
+- 📝 Transaction signing and submission
+- 🔗 WalletConnect integration for ID App interactions
+- 📱 Ready-to-use UI components
+
+## 📦 Package Information
+- **Module**: `concordium-idapp-sdk`
+- **Latest Version**: [Check releases](https://github.com/Concordium/concordium-id-kotlin-sdk/releases)
+
+## 🔧 Installation
+
+### Option 1: Git Submodule (Recommended)
+This method is ideal for developers who want to use the SDK directly and potentially contribute back to the project.
 
 ```bash
 git submodule add https://github.com/Concordium/concordium-id-kotlin-sdk.git libs/concordium-id-kotlin-sdk
@@ -29,11 +41,22 @@ dependencies {
 }
 ```
 
-Notes:
-- If you prefer to publish the SDK to your Maven repository, add the published coordinates instead of using a submodule.
-- Make sure to run Gradle sync after adding the module to pick up the project dependency.
+### Option 2: Maven Repository(Yet to be Live)
+If you prefer using dependency management:
 
-## Initialization
+```kotlin
+dependencies {
+    implementation("com.concoridum.sdk:concordium-idapp-sdk:x.y.z") // Replace with latest version
+}
+```
+
+💡 **Tips:**
+- Run Gradle sync after adding the dependency
+- Check [releases page](https://github.com/Concordium/concordium-id-kotlin-sdk/releases) for the latest version
+
+## 🚀 Getting Started
+
+### Initialization
 Call the initializer early in your app (for example, in `Application.onCreate`):
 
 ```kotlin
@@ -47,25 +70,31 @@ class MyApplication : Application() {
 }
 ```
 
-## Public API (summary)
-The SDK exposes two main singletons and a small model interface:
+## 📚 API Reference
 
-1. `ConcordiumIDAppSDK` — core functionality
+The SDK provides a clean and intuitive API through three main components:
+
+### 1. 🛠 ConcordiumIDAppSDK
+Core functionality for blockchain interactions:
    - `initialize(context: Context, enableDebugLog: Boolean = false)`
    - `signAndSubmit(seedPhrase: String, expiry: Long, unsignedCdiStr: String, accountIndex: Int = 0, network: Network = Network.MAINNET): String`
    - `generateAccountWithSeedPhrase(seed: String, network: Network, accountIndex: Int = 0): CCDAccountKeyPair`
    - `clear()`
 
-2. `ConcordiumIDAppPopup` — helpers to launch ID App UI flows
-   - `invokeIdAppDeepLinkPopup(walletConnectUri: String)`
-   - `invokeIdAppActionsPopup(walletConnectSessionTopic: String? = null, onCreateAccount: (() -> Unit)? = null, onRecoverAccount: (() -> Unit)? = null)`
-   - `closePopup()`
+### 2. 🖼 ConcordiumIDAppPopup
+UI components and flows for user interactions:
+   - `invokeIdAppDeepLinkPopup`: Launch WalletConnect flows
+   - `invokeIdAppActionsPopup`: Present account creation/recovery options
+   - `closePopup`: Dismiss active popups
 
-3. `CCDAccountKeyPair` — model
-   - `val publicKey: String`
-   - `val signingKey: String`
+### 3. 🔑 CCDAccountKeyPair
+Essential account data model:
+   - `publicKey`: Account's public verification key
+   - `signingKey`: Account's signing key
 
-## Examples
+## 💡 Code Examples
+
+Here are some common use cases to help you get started:
 
 ### 1) Sign and submit a credential deployment transaction
 
@@ -133,34 +162,99 @@ When you're done using the SDK, make sure to clean up resources:
 ConcordiumIDAppSDK.clear()
 ```
 
-## Network Configuration
+## 🌐 Network Configuration
 
-The SDK supports both Mainnet and Testnet environments:
+The SDK seamlessly integrates with both production and testing environments:
 
-- Mainnet URL: `https://grpc.mainnet.concordium.software`
-- Testnet URL: `grpc.testnet.concordium.com`
-- Default Port: `20000`
+### Mainnet
+- **URL**: `https://grpc.mainnet.concordium.software`
+- **Use Case**: Production deployments
+- **Default Port**: `20000`
 
-## Dependencies
+### Testnet
+- **URL**: `grpc.testnet.concordium.com`
+- **Use Case**: Development and testing
+- **Default Port**: `20000`
 
-The SDK uses the following key dependencies:
+## 📦 Dependencies
+
+The SDK is built with industry-standard technologies:
 - Jetpack Compose for UI components
 - ZXing for QR code generation
 - Concordium Android SDK for blockchain interactions
 
-## Contributing
+## 📋 Release Guidelines
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Creating a New Release
+Follow these steps to publish a new version of the SDK:
 
-## License
+1. Ensure you are on the `main` branch and it is up to date:
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
 
-[Add your license information here]
+2. Make sure all tests pass and the build is successful:
+   ```bash
+   ./gradlew clean build test
+   ```
 
-## Support
+3. Update the version number in `concordium-idapp-sdk/build.gradle.kts`:
+   - Follow semantic versioning (MAJOR.MINOR.PATCH)
+   - Example: `version = "1.0.0"`
 
-For support and questions, please [create an issue](https://github.com/Concordium/concordium-id-kotlin-sdk/issues) on our GitHub repository.
+4. Commit the version change:
+   ```bash
+   git add concordium-idapp-sdk/build.gradle.kts
+   git commit -m "Bump version to x.y.z"
+   ```
 
-## Notes & gotchas
+5. Create and push a new tag:
+   ```bash
+   git tag -a vx.y.z -m "Release version x.y.z"
+   git push origin main --tags
+   ```
+
+6. Create a release on GitHub:
+   - Go to the repository's Releases page
+   - Click "Create a new release"
+   - Select the tag you just created
+   - Title: "Release vx.y.z"
+   - Add release notes describing the changes
+   - Attach any relevant binaries or documentation
+
+Notes:
+- Replace x.y.z with the actual version number
+- Always create releases from the `main` branch
+- Ensure all changes are properly documented
+- Follow semantic versioning guidelines:
+  - MAJOR: Breaking changes
+  - MINOR: New features (backwards compatible)
+  - PATCH: Bug fixes (backwards compatible)
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to your branch
+5. Open a Pull Request
+
+Please ensure your code follows our coding standards and includes appropriate tests.
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## 💬 Support
+
+Need help? We're here for you!
+
+- 📝 [Create an issue](https://github.com/Concordium/concordium-id-kotlin-sdk/issues) for bug reports or feature requests
+
+## ⚠️ Important Notes
 - Always call `ConcordiumIDAppSDK.initialize(context)` before any other function.
 - `signAndSubmit` parses the `unsignedCdiStr` JSON; ensure it is valid. The function will throw if parsing fails.
 - Network calls use the Concordium Java/Kotlin client; ensure correct network selection (`Network.MAINNET` vs `Network.TESTNET`) and permissions.
