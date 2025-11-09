@@ -87,7 +87,7 @@ fun ConcordiumScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        stickyHeader {
+        item {
             Text(
                 text = content,
                 style = Typography.headlineMedium,
@@ -163,8 +163,8 @@ private fun SeedPhraseAndTransactionSection(
             runCatching {
                 ConcordiumIDAppSDK.signAndSubmit(
                     seedPhrase = seedPhrase,
-                    expiry = 1762596784,
-                    unsignedCdiStr = AppConstants.UNSIGNED_CDI_STRING,
+                    expiry = BuildConfig.EXPIRY,
+                    unsignedCdiStr = BuildConfig.UNSIGNED_CDI_STRING,
                     network = network,
                 )
             }.onFailure {

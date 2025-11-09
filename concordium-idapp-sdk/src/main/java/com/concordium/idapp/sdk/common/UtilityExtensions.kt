@@ -10,19 +10,15 @@ import androidx.core.net.toUri
 
 private val WC_URI_REGEX = Regex("""^wc:[0-9a-fA-F-]+@\d+""")
 
-fun String.isValiWalletConnectUri(): Boolean {
+internal fun String.isValiWalletConnectUri(): Boolean {
     val beforeQuestion = this.substringBefore("?")
     return WC_URI_REGEX.matches(beforeQuestion)
 }
 
-fun String.isValidWalletConnectSessionTopic() : Boolean {
+internal fun String.isValidWalletConnectSessionTopic() : Boolean {
     return this.length > 4
 }
 
-fun String.isValidWalletConnectUri(): Boolean {
-    val walletConnectUriPattern = """^wc:[a-fA-F0-9]{64}@2\?relay-protocol=[a-zA-Z]+&symKey=[a-fA-F0-9]{64}$""".toRegex()
-    return walletConnectUriPattern.matches(this)
-}
 internal fun handleAppDeepLink(
     deeplink: String,
     context: Context,
@@ -49,10 +45,10 @@ internal fun handleAppDeepLink(
 }
 
 @Composable
-fun Dp.toPixels() = with(LocalDensity.current) { this@toPixels.toPx() }
+internal fun Dp.toPixels() = with(LocalDensity.current) { this@toPixels.toPx() }
 
 @Composable
-fun Float.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
+internal fun Float.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
 
 @Composable
-fun Int.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
+internal fun Int.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
