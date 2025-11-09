@@ -29,19 +29,18 @@ dependencies {
     implementation("com.concordium.sdk:concordium-android-sdk:11.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
 }
-
-## � Core Components
+```
+## Core Components
 
 ### SDK Architecture
 ```
 com.concordium.idapp.sdk
 ├── api/
-│   ├── ConcordiumIDAppSDK     # Core blockchain operations
-│   └── ConcordiumIDAppPopup   # UI components
-├── model/
-│   ├── CCDAccountKeyPair      # Account management
-│   └── TransactionModels      # Blockchain transactions
-└── ui/                        # Ready-to-use UI components
+│   ├── model/
+│        └── CCDAccountKeyPair     # Account keys
+│   ├── ConcordiumIDAppSDK         # Core blockchain operations
+│   └── ConcordiumIDAppPopup       # UI components for create/recover/deeplink invoke 
+└── ui/                            # Ready-to-use UI components
 ```
 
 ### Development Workflow
@@ -51,7 +50,7 @@ com.concordium.idapp.sdk
 4. Review and merge
 5. Create release tag
 
-'### Configuration Setup
+### Configuration Setup
 
 1. Update the following properties in your `local.properties`:
 
