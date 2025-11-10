@@ -51,12 +51,6 @@ publishing {
         }
     }
     repositories {
-        // This configures publishing to a local directory for testing.
-        // You'll need to configure a remote repository (like Maven Central) for a real release.
-//        maven {
-//            name = "local"
-//            url = uri("${project.rootDir}/repo")
-//        }
         mavenLocal()
     }
 }
