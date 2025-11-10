@@ -19,7 +19,6 @@ The Concordium IDApp SDK enables Android developers to seamlessly integrate Conc
 
 ## 🔧 Installation
 
-
 ### Option 1: Publish to Maven Local (local development)
 If you want to test the SDK as a binary dependency without pushing to a remote repository, publish it to your local Maven cache and consume it from there.
 
@@ -55,7 +54,8 @@ Notes:
 - To remove a published local artifact, delete it from your local Maven cache (usually under `~/.m2/repository/com/concordium/sdk/concordium-idapp-sdk/<version>`).
 - If you change `group`/`artifactId`/`version` update the consumer dependency accordingly.
 
-### Option 1: Git Submodule
+### Option 2: Git Submodule (for developers)
+
 This method is ideal for developers who want to use the SDK directly and potentially contribute back to the project.
 
 ```bash
@@ -93,7 +93,7 @@ import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        ConcordiumIDAppSDK.initialize(this, enableDebugLog = false)
+        ConcordiumIDAppSDK.initialize(this, enableDebugLog = false) // Important for popup actions
     }
 }
 ```
