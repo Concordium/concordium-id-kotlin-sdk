@@ -19,7 +19,43 @@ The Concordium IDApp SDK enables Android developers to seamlessly integrate Conc
 
 ## 🔧 Installation
 
-### Option 1: Git Submodule (Recommended)
+### Option 1: Publish to Maven Local (local development)
+If you want to test the SDK as a binary dependency without pushing to a remote repository, publish it to your local Maven cache and consume it from there.
+
+1. Publish the SDK to your local Maven repository from the project root:
+
+```bash
+# publish all publications of the SDK module to mavenLocal
+./gradlew :concordium-idapp-sdk:publishToMavenLocal
+```
+
+2. In your consumer project, make sure `mavenLocal()` appears before other repositories so Gradle can resolve the locally published artifact:
+
+```kotlin
+repositories {
+    mavenLocal()
+    google()
+    mavenCentral()
+}
+```
+
+3. Add the dependency using the same coordinates configured in the SDK module (`group`, `artifactId`, `version`). 
+
+Example (Kotlin DSL):
+
+```kotlin
+dependencies {
+    implementation("com.concordium.sdk:concordium-idapp-sdk:0.0.1")
+}
+```
+
+Notes:
+- Publishing to Maven Local is intended for local development and testing. For CI and team sharing prefer an internal Maven repository (Artifactory/Nexus/GitHub Packages).
+- To remove a published local artifact, delete it from your local Maven cache (usually under `~/.m2/repository/com/concordium/sdk/concordium-idapp-sdk/<version>`).
+- If you change `group`/`artifactId`/`version` update the consumer dependency accordingly.
+
+### Option 2: Git Submodule (for developers)
+
 This method is ideal for developers who want to use the SDK directly and potentially contribute back to the project.
 
 ```bash
@@ -42,15 +78,6 @@ dependencies {
 }
 ```
 
-### Option 2: Maven Repository (Yet to be Live)
-If you prefer using dependency management:
-
-```kotlin
-dependencies {
-    implementation("com.concoridum.sdk:concordium-idapp-sdk:x.y.z") // Replace with latest version
-}
-```
-
 💡 **Tips:**
 - Run Gradle sync after adding the dependency
 - Check [releases page](https://github.com/Concordium/concordium-id-kotlin-sdk/releases) for the latest version
@@ -66,7 +93,7 @@ import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        ConcordiumIDAppSDK.initialize(this, enableDebugLog = false)
+        ConcordiumIDAppSDK.initialize(this, enableDebugLog = false) // Important for popup actions
     }
 }
 ```
