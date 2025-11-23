@@ -16,7 +16,10 @@ object ConcordiumIDAppPopup {
 
     /**
      *  Invoke ID App Deep Link Popup
-     *  @param walletConnectUri: String
+     * 
+     *  @param walletConnectUri: String - Valid WalletConnect URI starting with "wc:"
+     *  @throws IllegalArgumentException if URI format is invalid
+     *  @throws IllegalStateException if SDK not initialized
      * */
     fun invokeIdAppDeepLinkPopup(
         walletConnectUri: String
@@ -42,9 +45,9 @@ object ConcordiumIDAppPopup {
     /**
      * Invoke ID App Actions Popup
      *
-     * @param walletConnectSessionTopic: String?
-     * @param onCreateAccount: (() -> Unit)?
-     * @param onRecoverAccount: (() -> Unit)?
+     * @param walletConnectSessionTopic: String? - Valid WalletConnect session topic
+     * @param onCreateAccount: (() -> Unit)? - Handler when user selects create account
+     * @param onRecoverAccount: (() -> Unit)? - Handler when user selects recover account
      */
     fun invokeIdAppActionsPopup(
         walletConnectSessionTopic: String? = null,
