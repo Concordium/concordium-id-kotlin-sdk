@@ -16,13 +16,13 @@ object ConcordiumIDAppPopup {
 
     /**
      *  Invoke ID App Deep Link Popup
-     * 
+     *
      *  @param walletConnectUri: String - Valid WalletConnect URI starting with "wc:"
      *  @throws IllegalArgumentException if URI format is invalid
      *  @throws IllegalStateException if SDK not initialized
      * */
     fun invokeIdAppDeepLinkPopup(
-        walletConnectUri: String
+        walletConnectUri: String,
     ) {
         checkForInitialization()
         require(walletConnectUri.isValiWalletConnectUri()) {
@@ -46,39 +46,28 @@ object ConcordiumIDAppPopup {
      * Invoke ID App Actions Popup
      *
      * @param walletConnectSessionTopic: String? - Valid WalletConnect session topic
-     * @param onCreateAccount: (() -> Unit)? - Handler when user selects create account
-     * @param onRecoverAccount: (() -> Unit)? - Handler when user selects recover account
+     * @param onCreateAccount: (() -> Unit) - Handler when user selects create account
      */
     fun invokeIdAppActionsPopup(
-        walletConnectSessionTopic: String? = null,
-        onCreateAccount: (() -> Unit)? = null,
-        onRecoverAccount: (() -> Unit)? = null,
+        walletConnectSessionTopic: String,
+        onCreateAccount: (() -> Unit),
     ) {
         checkForInitialization()
-        require(onCreateAccount != null || onRecoverAccount != null) {
-            "At least one of the handlers must be provided"
-        }
-        if (onCreateAccount != null) {
-            require(
-                walletConnectSessionTopic != null && walletConnectSessionTopic.isValidWalletConnectSessionTopic()
-            )
-            { "Invalid Wallet Connect's session topic" }
+        require(walletConnectSessionTopic.isValidWalletConnectSessionTopic()) {
+            "Invalid Wallet Connect's session topic"
         }
         shouldCloseApp.update { false }
-        val action = when {
-            onRecoverAccount == null -> "create"
-            onCreateAccount == null -> "recover"
-            else -> "create_or_recover"
-        }
+
+        val action = "create"
         Logger.d("Invoke ID App Actions Popup with action: $action")
 
-        val code = walletConnectSessionTopic?.substring(0, 4)?.uppercase()
+        val code = walletConnectSessionTopic.substring(0, 4).uppercase()
         val context = ConcordiumIDAppSDK.context
         val intent = ConcordiumSdkActivity.createIntent(
             context = context,
             action = action,
             step = UserJourneyStep.IdVerification.name,
-            code = code.orEmpty(),
+            code = code,
         ).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }

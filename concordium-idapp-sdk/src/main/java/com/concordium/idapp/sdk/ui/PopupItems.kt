@@ -43,8 +43,7 @@ import androidx.compose.ui.unit.times
 import com.concordium.idapp.sdk.R
 import com.concordium.idapp.sdk.common.toDp
 import com.concordium.idapp.sdk.common.toPixels
-import com.concordium.idapp.sdk.ui.model.AccountAction
-import com.concordium.idapp.sdk.ui.model.StepItem
+ import com.concordium.idapp.sdk.ui.model.StepItem
 import com.concordium.idapp.sdk.ui.theme.Black
 import com.concordium.idapp.sdk.ui.theme.Blue
 import com.concordium.idapp.sdk.ui.theme.Grayish
@@ -123,7 +122,7 @@ internal fun AccountSetupSection(instruction: String, modifier: Modifier = Modif
 internal fun QRCodeSection(
     walletConnectUri: String,
     deepLinkInvoke: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -163,10 +162,8 @@ internal fun QRCodeSection(
 
 @Composable
 internal fun IdVerificationSection(
-    accountAction: AccountAction,
     onCreateAccount: () -> Unit,
-    onRecoverAccount: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -183,36 +180,10 @@ internal fun IdVerificationSection(
             style = Typography.headlineMedium,
             textAlign = TextAlign.Center,
         )
-        when (accountAction) {
-            AccountAction.Recover -> {
-                RecoverCta(
-                    ctaText = stringResource(R.string.recover),
-                    onClick = onRecoverAccount
-                )
-            }
-
-            is AccountAction.Create -> {
-                CtaContainer(
-                    ctaText = stringResource(R.string.create_new_account),
-                    onClick = onCreateAccount
-                )
-            }
-
-            else -> {
-                Column {
-                    CtaContainer(
-                        ctaText = stringResource(R.string.create_new_account),
-                        onClick = onCreateAccount
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    RecoverCta(
-                        ctaText = stringResource(R.string.recover),
-                        onClick = onRecoverAccount
-                    )
-                }
-            }
-        }
-
+        CtaContainer(
+            ctaText = stringResource(R.string.create_new_account),
+            onClick = onCreateAccount
+        )
     }
 }
 
@@ -342,7 +313,11 @@ internal fun StepperView(
 }
 
 @Composable
-internal fun MatchCodeSection(instruction: String, codeText: String, modifier: Modifier = Modifier) {
+internal fun MatchCodeSection(
+    instruction: String,
+    codeText: String,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier
             .fillMaxWidth()
@@ -363,7 +338,7 @@ internal fun MatchCodeSection(instruction: String, codeText: String, modifier: M
 @Composable
 internal fun PlayStoreSection(
     infoText: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -393,7 +368,7 @@ private fun CircularBox(
     size: Dp = 90.dp,
     strokeWidth: Dp = 3.dp,
     strokeColor: Color = Blue,
-    textStyle: TextStyle = Typography.displayLarge
+    textStyle: TextStyle = Typography.displayLarge,
 ) {
     Box(
         modifier = modifier

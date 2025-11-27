@@ -15,13 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 internal class ConcordiumViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(
-        UiState(
-            accountAction = AccountAction.Recover,
-            journeyStep = UserJourneyStep.Connect,
-        )
-    )
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
+    val uiState: StateFlow<UiState?> = _uiState.asStateFlow()
 
     fun initialize(intent: Intent) {
         val actionData = intent.getStringExtra(KEY_ACTION)

@@ -86,10 +86,12 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ConcordiumSdkAppTheme {
-                SdkBottomSheet(
-                    uiState = uiState,
-                    onPopupClose = { this@ConcordiumSdkActivity.finish() },
-                )
+                uiState?.let {
+                    SdkBottomSheet(
+                        uiState = it,
+                        onPopupClose = { this@ConcordiumSdkActivity.finish() },
+                    )
+                }
             }
         }
     }
@@ -130,7 +132,6 @@ internal fun SdkBottomSheet(
     modifier: Modifier = Modifier,
     showBottomSheet: Boolean = true,
     onCreateAccount: () -> Unit = {},
-    onRecoverAccount: () -> Unit = {},
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
@@ -151,7 +152,6 @@ internal fun SdkBottomSheet(
                 onPopupClose = onPopupClose,
                 modifier = modifier,
                 onCreateAccount = onCreateAccount,
-                onRecoverAccount = onRecoverAccount,
             )
         }
     }
@@ -163,7 +163,6 @@ internal fun SdkScreen(
     onPopupClose: () -> Unit,
     modifier: Modifier = Modifier,
     onCreateAccount: () -> Unit = {},
-    onRecoverAccount: () -> Unit = {},
 ) {
     Column(
         modifier
@@ -177,13 +176,12 @@ internal fun SdkScreen(
         )
         ContentSection(
             userJourneyStep = uiState.journeyStep,
-            accountAction = uiState.accountAction,
             walletConnectUri = uiState.walletConnectUri,
             onCreateAccount = onCreateAccount,
-            onRecoverAccount = onRecoverAccount,
         )
         BottomSection(
-            step = uiState.journeyStep, accountAction = uiState.accountAction
+            step = uiState.journeyStep,
+            accountAction = uiState.accountAction
         )
     }
 }
@@ -191,10 +189,8 @@ internal fun SdkScreen(
 @Composable
 internal fun ContentSection(
     userJourneyStep: UserJourneyStep,
-    accountAction: AccountAction,
     walletConnectUri: String = "",
     onCreateAccount: () -> Unit = {},
-    onRecoverAccount: () -> Unit = {},
 ) {
     val context = LocalContext.current
     when (userJourneyStep) {
@@ -205,9 +201,7 @@ internal fun ContentSection(
         }
 
         IdVerification -> IdVerificationSection(
-            accountAction = accountAction,
             onCreateAccount = onCreateAccount,
-            onRecoverAccount = onRecoverAccount
         )
 
         Account -> {}
@@ -216,7 +210,7 @@ internal fun ContentSection(
 
 @Composable
 internal fun BottomSection(
-    step: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier
+    step: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier,
 ) {
     when (step) {
         Connect -> PlayStoreSection(infoText = stringResource(R.string.info_text_play_store))
@@ -226,13 +220,6 @@ internal fun BottomSection(
                     instruction = stringResource(R.string.message_match_code_in_IDapp),
                     codeText = accountAction.code,
                 )
-
-                is AccountAction.CreateOrRecover -> MatchCodeSection(
-                    instruction = stringResource(R.string.message_match_code_in_IDapp),
-                    codeText = accountAction.code,
-                )
-
-                else -> {}
             }
         }
 
@@ -242,7 +229,7 @@ internal fun BottomSection(
 
 @Composable
 internal fun StepperSection(
-    currentStep: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier
+    currentStep: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier,
 ) {
     StepperView(
         modifier = modifier.wrapContentWidth(),
@@ -255,9 +242,7 @@ internal fun StepperSection(
             StepItem(
                 selected = Account <= currentStep,
                 label = when (accountAction) {
-                    AccountAction.Recover -> stringResource(R.string.step_recover_account)
                     is AccountAction.Create -> stringResource(R.string.step_create_account)
-                    else -> stringResource(R.string.step_create_recover_account)
                 }
             ),
         ),

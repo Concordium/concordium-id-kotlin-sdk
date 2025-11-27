@@ -71,7 +71,7 @@ internal class MainActivity : ComponentActivity() {
 fun ConcordiumScreen(
     content: String,
     callback: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var isMainnetNetwork by rememberSaveable { mutableStateOf(false) }
     val network = if (isMainnetNetwork) Network.MAINNET else Network.TESTNET
@@ -114,7 +114,7 @@ fun ConcordiumScreen(
 private fun NetworkSwitchContainer(
     isMainnetNetwork: Boolean,
     onIsMainnetNetworkChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -209,8 +209,6 @@ private fun DeeplinkAndActionsSection(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    var isCreateAccountChecked by rememberSaveable { mutableStateOf(true) }
-    var isRecoverAccountChecked by rememberSaveable { mutableStateOf(true) }
 
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -228,43 +226,11 @@ private fun DeeplinkAndActionsSection(
             )
         }
         Spacer(Modifier.height(32.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = isCreateAccountChecked,
-                onCheckedChange = { isCreateAccountChecked = it }
-            )
-            Text(text = stringResource(id = R.string.create_account_label))
-            Spacer(Modifier.width(16.dp))
-            Checkbox(
-                checked = isRecoverAccountChecked,
-                onCheckedChange = { isRecoverAccountChecked = it }
-            )
-            Text(text = stringResource(id = R.string.recover_account_label))
-        }
         Button(onClick = {
-            if (isCreateAccountChecked.not() && isRecoverAccountChecked.not()) {
-                Toast.makeText(
-                    context,
-                    R.string.at_least_one_box_must_be_checked,
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@Button
-            }
             runCatching {
                 ConcordiumIDAppPopup.invokeIdAppActionsPopup(
                     walletConnectSessionTopic = BuildConfig.WC_SESSION_TOPIC,
-                    onCreateAccount = if (isCreateAccountChecked) {
-                        {
-                            println("onCreate Account")
-                        }
-                    } else null,
-                    onRecoverAccount = if (isRecoverAccountChecked) {
-                        {
-                            println("onRecover Account")
-                        }
-                    } else null,
+                    onCreateAccount = { println("onCreate Account") },
                 )
             }.onFailure {
                 it.printStackTrace()
@@ -276,7 +242,7 @@ private fun DeeplinkAndActionsSection(
             }
         }) {
             Text(
-                text = stringResource(R.string.open_actions_popup),
+                text = stringResource(R.string.open_create_actions_popup),
             )
         }
     }
@@ -288,7 +254,7 @@ private fun EditableInputContainer(
     label: String,
     value: String,
     onUpdateCallback: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val sharedPreferences =
