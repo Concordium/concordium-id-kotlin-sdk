@@ -20,8 +20,6 @@ import java.util.Collections
 
 @SuppressLint("StaticFieldLeak")
 object ConcordiumIDAppSDK {
-    internal const val KEY_UNSIGNED_STR = "unsignedCdiStr"
-    internal const val KEY_EXPIRY = "expiry"
     internal var enableDebugging: Boolean = false
 
     private var _context: Context? = null
@@ -38,9 +36,10 @@ object ConcordiumIDAppSDK {
 
     /**
      * sign and submit transaction to blockchain
-     * @param seedPhrase
-     * @param serializedCredentialDeploymentTransaction
-     * @param accountIndex
+     * @param seedPhrase seed phrase for the wallet
+     * @param expiry expiry time in seconds since unix epoch
+     * @param unsignedCdiStr unsigned credential deployment info string
+     * @param accountIndex account index, defaults to 0
      * @param network, defaults to Mainnet
      */
     fun signAndSubmit(
@@ -50,10 +49,12 @@ object ConcordiumIDAppSDK {
         accountIndex: Int = 0,
         network: Network = Network.MAINNET,
     ): String {
-        Logger.d("sign and submit transaction")
-
+        require(seedPhrase.isNotBlank()) { "Seed phrase cannot be empty" }
+        require(unsignedCdiStr.isNotBlank()) { "Unsigned CDI string cannot be empty" }
+        require(accountIndex >= 0) { "Account index must be non-negative" }
+        require(expiry > 0) { "Expiry must be positive" }
         // parse the transaction
-        var unsignedCdi: UnsignedCredentialDeploymentInfo? = null
+        val unsignedCdi: UnsignedCredentialDeploymentInfo
         try {
             unsignedCdi = JsonMapper.INSTANCE.readValue(
                 unsignedCdiStr,
@@ -61,15 +62,15 @@ object ConcordiumIDAppSDK {
             )
         } catch (e: Exception) {
             Logger.e("Error parsing serialized CredentialDeploymentTransaction: $e")
-        }
-        require( expiry > 0 && unsignedCdi != null) {
-            "Error parsing serialized credential deployment transaction"
+            throw IllegalArgumentException("Invalid credential deployment info format", e)
         }
 
+        Logger.d("sign and submit transaction")
+
         // generate signature
-        val expiry = Expiry.from(expiry)
+        val expiryTimestamp = Expiry.from(expiry)
         val wallet = ConcordiumHdWallet.fromSeedPhrase(seedPhrase, network)
-        val credentialDeploymentDetails = CredentialDeploymentDetails(unsignedCdi, expiry)
+        val credentialDeploymentDetails = CredentialDeploymentDetails(unsignedCdi, expiryTimestamp)
         val credentialDeploymentSignDigest =
             Credential.getCredentialDeploymentSignDigest(credentialDeploymentDetails)
         val accountSigningKey = wallet.getAccountSigningKey(

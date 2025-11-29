@@ -32,7 +32,6 @@ import com.concordium.idapp.sdk.R
 import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.common.Constants
 import com.concordium.idapp.sdk.common.handleAppDeepLink
-import com.concordium.idapp.sdk.ui.model.AccountAction
 import com.concordium.idapp.sdk.ui.model.StepItem
 import com.concordium.idapp.sdk.ui.model.UiState
 import com.concordium.idapp.sdk.ui.model.UserJourneyStep
@@ -45,7 +44,6 @@ import kotlinx.coroutines.launch
 internal class ConcordiumSdkActivity : ComponentActivity() {
 
     companion object {
-        const val KEY_ACTION = "key_action"
         const val KEY_STEP = "key_step"
         const val KEY_CODE = "key_code"
         const val KEY_URI = "key_uri"
@@ -53,11 +51,9 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
         fun createIntent(
             context: Context,
             step: String,
-            action: String = "create_or_recover",
             code: String? = null,
             walletConnectUri: String? = null,
         ) = Intent(context, ConcordiumSdkActivity::class.java).apply {
-            putExtra(KEY_ACTION, action)
             putExtra(KEY_STEP, step)
             putExtra(KEY_CODE, code)
             putExtra(KEY_URI, walletConnectUri)
@@ -86,10 +82,13 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ConcordiumSdkAppTheme {
-                SdkBottomSheet(
-                    uiState = uiState,
-                    onPopupClose = { this@ConcordiumSdkActivity.finish() },
-                )
+                uiState?.let {
+                    SdkBottomSheet(
+                        uiState = it,
+                        onPopupClose = { this@ConcordiumSdkActivity.finish() },
+                        onCreateAccount = { ConcordiumIDAppPopup.idAppActionsCallbackHolder.invoke() },
+                    )
+                }
             }
         }
     }
@@ -127,10 +126,9 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
 internal fun SdkBottomSheet(
     uiState: UiState,
     onPopupClose: () -> Unit,
+    onCreateAccount: () -> Unit,
     modifier: Modifier = Modifier,
     showBottomSheet: Boolean = true,
-    onCreateAccount: () -> Unit = {},
-    onRecoverAccount: () -> Unit = {},
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
@@ -151,7 +149,6 @@ internal fun SdkBottomSheet(
                 onPopupClose = onPopupClose,
                 modifier = modifier,
                 onCreateAccount = onCreateAccount,
-                onRecoverAccount = onRecoverAccount,
             )
         }
     }
@@ -163,7 +160,6 @@ internal fun SdkScreen(
     onPopupClose: () -> Unit,
     modifier: Modifier = Modifier,
     onCreateAccount: () -> Unit = {},
-    onRecoverAccount: () -> Unit = {},
 ) {
     Column(
         modifier
@@ -173,17 +169,15 @@ internal fun SdkScreen(
         HeaderSection(onClose = onPopupClose)
         StepperSection(
             currentStep = uiState.journeyStep,
-            accountAction = uiState.accountAction,
         )
         ContentSection(
             userJourneyStep = uiState.journeyStep,
-            accountAction = uiState.accountAction,
             walletConnectUri = uiState.walletConnectUri,
             onCreateAccount = onCreateAccount,
-            onRecoverAccount = onRecoverAccount,
         )
         BottomSection(
-            step = uiState.journeyStep, accountAction = uiState.accountAction
+            step = uiState.journeyStep,
+            codeText = uiState.codeText,
         )
     }
 }
@@ -191,10 +185,8 @@ internal fun SdkScreen(
 @Composable
 internal fun ContentSection(
     userJourneyStep: UserJourneyStep,
-    accountAction: AccountAction,
     walletConnectUri: String = "",
     onCreateAccount: () -> Unit = {},
-    onRecoverAccount: () -> Unit = {},
 ) {
     val context = LocalContext.current
     when (userJourneyStep) {
@@ -205,9 +197,7 @@ internal fun ContentSection(
         }
 
         IdVerification -> IdVerificationSection(
-            accountAction = accountAction,
             onCreateAccount = onCreateAccount,
-            onRecoverAccount = onRecoverAccount
         )
 
         Account -> {}
@@ -216,24 +206,16 @@ internal fun ContentSection(
 
 @Composable
 internal fun BottomSection(
-    step: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier
+    step: UserJourneyStep,
+    codeText: String = "",
 ) {
     when (step) {
         Connect -> PlayStoreSection(infoText = stringResource(R.string.info_text_play_store))
         IdVerification -> {
-            when (accountAction) {
-                is AccountAction.Create -> MatchCodeSection(
-                    instruction = stringResource(R.string.message_match_code_in_IDapp),
-                    codeText = accountAction.code,
-                )
-
-                is AccountAction.CreateOrRecover -> MatchCodeSection(
-                    instruction = stringResource(R.string.message_match_code_in_IDapp),
-                    codeText = accountAction.code,
-                )
-
-                else -> {}
-            }
+            MatchCodeSection(
+                instruction = stringResource(R.string.message_match_code_in_IDapp),
+                codeText = codeText,
+            )
         }
 
         Account -> {}
@@ -242,7 +224,7 @@ internal fun BottomSection(
 
 @Composable
 internal fun StepperSection(
-    currentStep: UserJourneyStep, accountAction: AccountAction, modifier: Modifier = Modifier
+    currentStep: UserJourneyStep, modifier: Modifier = Modifier,
 ) {
     StepperView(
         modifier = modifier.wrapContentWidth(),
@@ -254,15 +236,10 @@ internal fun StepperSection(
             ),
             StepItem(
                 selected = Account <= currentStep,
-                label = when (accountAction) {
-                    AccountAction.Recover -> stringResource(R.string.step_recover_account)
-                    is AccountAction.Create -> stringResource(R.string.step_create_account)
-                    else -> stringResource(R.string.step_create_recover_account)
-                }
+                label = stringResource(R.string.step_create_account)
             ),
         ),
     )
-
 }
 
 @Preview(showBackground = true)
@@ -272,10 +249,10 @@ private fun DeepLinkInvokePreview() {
         SdkBottomSheet(
             uiState = UiState(
                 journeyStep = Connect,
-                accountAction = AccountAction.Create("1234"),
                 walletConnectUri = "1234"
             ),
             onPopupClose = {},
+            onCreateAccount = {},
         )
     }
 }
@@ -287,9 +264,10 @@ private fun AccountCreateInvokePreview() {
         SdkBottomSheet(
             uiState = UiState(
                 journeyStep = IdVerification,
-                accountAction = AccountAction.Create("1234"),
+                codeText = "1234",
             ),
             onPopupClose = {},
+            onCreateAccount = {},
         )
     }
 }
