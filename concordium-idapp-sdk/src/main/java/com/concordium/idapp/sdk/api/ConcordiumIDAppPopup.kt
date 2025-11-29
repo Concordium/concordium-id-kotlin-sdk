@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.update
 object ConcordiumIDAppPopup {
 
     internal val shouldCloseApp = MutableStateFlow(false)
+    internal var idAppActionsCallbackHolder: () -> Unit = {}
 
     /**
      *  Invoke ID App Deep Link Popup
@@ -57,15 +58,15 @@ object ConcordiumIDAppPopup {
             "Invalid Wallet Connect's session topic"
         }
         shouldCloseApp.update { false }
+        idAppActionsCallbackHolder = onCreateAccount
 
         val action = "create"
         Logger.d("Invoke ID App Actions Popup with action: $action")
 
-        val code = walletConnectSessionTopic.substring(0, 4).uppercase()
+        val code = walletConnectSessionTopic.take(4).uppercase()
         val context = ConcordiumIDAppSDK.context
         val intent = ConcordiumSdkActivity.createIntent(
             context = context,
-            action = action,
             step = UserJourneyStep.IdVerification.name,
             code = code,
         ).apply {
@@ -78,7 +79,7 @@ object ConcordiumIDAppPopup {
      * Close ID App Popup
      */
     fun closePopup() {
-        checkForInitialization()
+        idAppActionsCallbackHolder = {}
         shouldCloseApp.update { true }
         Logger.d("Close ID App Popup")
     }
