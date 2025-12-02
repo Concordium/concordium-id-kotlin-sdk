@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,12 +42,15 @@ import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
 import com.concordium.idapp.sdk.app.BuildConfig
 import com.concordium.idapp.sdk.app.R
+import com.concordium.sdk.app.AppConstants.DUMMY_PUBLIC_KEY
 import com.concordium.sdk.app.AppConstants.DUMMY_SEED_PHRASE
+import com.concordium.sdk.app.AppConstants.KEY_PUBLIC_KEY
 import com.concordium.sdk.app.AppConstants.PREFS_NAME
 import com.concordium.sdk.app.AppConstants.SEED_PHRASE_KEY
 import com.concordium.sdk.app.ui.theme.ConcordiumIdAppSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
+import kotlinx.coroutines.launch
 
 internal class TestAppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,17 +97,65 @@ fun ConcordiumScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 64.dp)
+                    .padding(top = 48.dp)
             )
         }
-        item { SeedPhraseAndTransactionSection(network = network) }
-        item { HorizontalDivider(modifier.padding(top = 24.dp)) }
-        item { DeeplinkAndActionsSection() }
-        item { Spacer(Modifier.height(32.dp)) }
         item {
             NetworkSwitchContainer(
+                modifier = Modifier.padding(top = 16.dp),
                 isMainnetNetwork = isMainnetNetwork,
                 onIsMainnetNetworkChange = { isMainnetNetwork = it }
+            )
+        }
+        item { HorizontalDivider(Modifier.padding(vertical = 16.dp)) }
+        item { SeedPhraseAndTransactionSection(network = network) }
+        item { HorizontalDivider(Modifier.padding(vertical = 16.dp)) }
+        item { DeeplinkAndActionsSection() }
+        item { HorizontalDivider(Modifier.padding(vertical = 16.dp)) }
+        item { KeyAccountsSection(network = network) }
+    }
+}
+
+@Composable
+private fun KeyAccountsSection(network: Network, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val sharedPreferences =
+        remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
+
+    var publicKey by rememberSaveable {
+        mutableStateOf(
+            sharedPreferences.getString(KEY_PUBLIC_KEY, DUMMY_PUBLIC_KEY) ?: DUMMY_PUBLIC_KEY
+        )
+    }
+    val scope = rememberCoroutineScope()
+
+    Column(modifier.fillMaxSize()) {
+        Text(
+            text = stringResource(id = R.string.get_key_accounts),
+            style = Typography.titleMedium,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Spacer(Modifier.height(16.dp))
+        EditableInputContainer(
+            value = publicKey,
+            prefKey = KEY_PUBLIC_KEY,
+            label = stringResource(id = R.string.public_key),
+            onUpdateCallback = {
+                publicKey = it
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Button(onClick = {
+            scope.launch {
+                val keyAccounts = ConcordiumIDAppSDK.getKeyAccounts(
+                    network = network,
+                    publicKey = publicKey,
+                )
+                println("keyAccounts: $keyAccounts")
+            }
+        }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            Text(
+                text = stringResource(R.string.get_key_accounts),
             )
         }
     }
@@ -118,7 +170,7 @@ private fun NetworkSwitchContainer(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(text = stringResource(id = R.string.network_testnet))
         Spacer(modifier = Modifier.width(8.dp))
@@ -277,7 +329,6 @@ private fun EditableInputContainer(
             sharedPreferences.edit(commit = true) { putString(prefKey, currText) }
             onUpdateCallback.invoke(currText)
             Toast.makeText(context, "$label saved successfully", Toast.LENGTH_SHORT).show()
-
         }) {
             Text(text = stringResource(id = R.string.save))
         }
