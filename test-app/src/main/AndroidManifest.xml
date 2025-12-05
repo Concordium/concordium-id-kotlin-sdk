@@ -14,9 +14,8 @@
         android:theme="@style/Theme.ConcordiumSdkApp"
         tools:targetApi="31">
         <activity
-            android:name="com.concordium.sdk.app.MainActivity"
+            android:name="com.concordium.sdk.app.TestAppActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.ConcordiumSdkApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

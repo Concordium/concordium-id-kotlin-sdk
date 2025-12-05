@@ -1,20 +1,5 @@
 package com.concordium.idapp.sdk.ui.model
 
-internal sealed interface AccountAction {
-    object Recover : AccountAction
-    class Create(val code: String) : AccountAction
-    class CreateOrRecover(val code: String) : AccountAction
-
-    companion object {
-        fun from(action: String?, code: String = ""): AccountAction {
-            return when (action) {
-                "create_or_recover" -> CreateOrRecover(code)
-                "create" -> Create(code)
-                else -> Recover
-            }
-        }
-    }
-}
 
 internal enum class UserJourneyStep {
     Connect,
@@ -30,7 +15,7 @@ internal enum class UserJourneyStep {
 }
 
 internal data class UiState(
-    val accountAction: AccountAction,
     val journeyStep: UserJourneyStep,
+    val codeText: String = "",
     val walletConnectUri: String = "",
 )
