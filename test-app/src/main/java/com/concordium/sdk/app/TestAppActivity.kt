@@ -148,8 +148,8 @@ private fun KeyAccountsSection(network: Network, modifier: Modifier = Modifier) 
         Button(onClick = {
             scope.launch {
                 val keyAccounts = ConcordiumIDAppSDK.getKeyAccounts(
-                    network = network,
                     publicKey = publicKey,
+                    network = network,
                 )
                 println("keyAccounts: $keyAccounts")
             }

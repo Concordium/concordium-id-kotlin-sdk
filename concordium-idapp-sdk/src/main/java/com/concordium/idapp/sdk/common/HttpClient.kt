@@ -46,7 +46,7 @@ internal object HttpClient {
      */
     fun getWalletProxyBaseUrl(network: Network): String {
         return when (network) {
-            Network.MAINNET -> "https://wallet-proxy.mainnet.concordium.com"
+            Network.MAINNET -> "https://wallet-proxy.mainnet.concordium.software"
             Network.TESTNET -> "https://wallet-proxy.testnet.concordium.com"
         }
     }
