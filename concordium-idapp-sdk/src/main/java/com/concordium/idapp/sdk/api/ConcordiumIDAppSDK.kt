@@ -3,7 +3,11 @@ package com.concordium.idapp.sdk.api
 import android.annotation.SuppressLint
 import android.content.Context
 import com.concordium.idapp.sdk.api.model.CCDAccountKeyPair
+import com.concordium.idapp.sdk.api.model.KeyAccount
+import com.concordium.idapp.sdk.api.model.KeyAccountImpl
+import com.concordium.idapp.sdk.api.model.KeyAccountPublicKeyImpl
 import com.concordium.idapp.sdk.common.ClientService
+import com.concordium.idapp.sdk.common.HttpClient
 import com.concordium.idapp.sdk.common.Logger
 import com.concordium.sdk.crypto.wallet.ConcordiumHdWallet
 import com.concordium.sdk.crypto.wallet.Credential
@@ -115,6 +119,29 @@ object ConcordiumIDAppSDK {
     }
 
     /**
+     * get key accounts from public key
+     * @param publicKey
+     * @param network
+     */
+    suspend fun getKeyAccounts(publicKey: String, network: Network): Array<KeyAccount> {
+        require(publicKey.isNotBlank()) { "Public key cannot be empty" }
+        checkForInitialization()
+        try {
+            Logger.d("Fetching key accounts for public key: $publicKey on network: $network")
+            val baseUrl = HttpClient.getWalletProxyBaseUrl(network)
+            val apiUrl = "$baseUrl/v0/keyAccounts/$publicKey"
+            val response = HttpClient.get(apiUrl)
+            Logger.d("Response from wallet-proxy: $response")
+            val keyAccounts = parseKeyAccounts(response)
+
+            return keyAccounts.toTypedArray()
+        } catch (e: Exception) {
+            Logger.e("Error fetching key accounts: ${e.message}")
+            throw IllegalStateException("Failed to fetch key accounts", e)
+        }
+    }
+
+    /**
      * cleaning up resources
      */
     fun clear() {
@@ -127,6 +154,30 @@ object ConcordiumIDAppSDK {
         require(_context != null) {
             "ConcordiumIDAppSDK not initialized"
         }
+    }
+
+    private fun parseKeyAccounts(response: String): List<KeyAccount> {
+        val jsonArray = JsonMapper.INSTANCE.readTree(response)
+        val keyAccounts = mutableListOf<KeyAccount>()
+
+        if (jsonArray.isArray) {
+            for (jsonNode in jsonArray) {
+                val publicKeyNode = jsonNode.get("public_key")
+                val publicKeyImpl = KeyAccountPublicKeyImpl(
+                    schemeId = publicKeyNode.get("schemeId").asText(),
+                    verifyKey = publicKeyNode.get("verifyKey").asText()
+                )
+                val keyAccount = KeyAccountImpl(
+                    address = jsonNode.get("address").asText(),
+                    credentialIndex = jsonNode.get("credential_index").asInt(),
+                    isSimpleAccount = jsonNode.get("is_simple_account").asBoolean(),
+                    keyIndex = jsonNode.get("key_index").asInt(),
+                    publicKey = publicKeyImpl
+                )
+                keyAccounts.add(keyAccount)
+            }
+        }
+        return keyAccounts
     }
 
     /**
@@ -153,13 +204,13 @@ object ConcordiumIDAppSDK {
     }
 
     /**
-    * Send payload to blockchain
-    * @param network
-    * @param credentialDeploymentTransaction
-    */
+     * send payload to blockchain
+     * @param network
+     * @param credentialDeploymentTransaction
+     */
     private fun submitCCDTransaction(
         network: Network,
-        credentialDeploymentTransaction: CredentialDeploymentTransaction
+        credentialDeploymentTransaction: CredentialDeploymentTransaction,
     ): String {
         val client = ClientService.getClient(network = network)
 
