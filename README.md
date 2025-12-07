@@ -107,6 +107,7 @@ Core functionality for blockchain interactions:
    - `initialize(context: Context, enableDebugLog: Boolean = false)`
    - `signAndSubmit(seedPhrase: String, expiry: Long, unsignedCdiStr: String, accountIndex: Int = 0, network: Network = Network.MAINNET): String`
    - `generateAccountWithSeedPhrase(seed: String, network: Network, accountIndex: Int = 0): CCDAccountKeyPair`
+   - `getKeyAccounts(publicKey: String, network: Network): Array<KeyAccount>` (suspend function)
    - `clear()`
 
 ### 2. 🖼 ConcordiumIDAppPopup
@@ -115,10 +116,23 @@ UI components and flows for user interactions:
    - `invokeIdAppActionsPopup`: Present account creation/recovery options
    - `closePopup`: Dismiss active popups
 
-### 3. 🔑 CCDAccountKeyPair
-Essential account data model:
+### 3. 🔑 Data Models
+Essential data models for account management:
+
+**CCDAccountKeyPair** - Account key information:
    - `publicKey`: Account's public verification key
    - `signingKey`: Account's signing key
+
+**KeyAccount** - Key account details:
+   - `address`: Account address on the blockchain
+   - `credentialIndex`: Index of the credential
+   - `isSimpleAccount`: Whether this is a simple account
+   - `keyIndex`: Index of the key
+   - `publicKey`: KeyAccountPublicKey object
+
+**KeyAccountPublicKey** - Public key information:
+   - `schemeId`: Cryptographic scheme identifier (e.g., "Ed25519")
+   - `verifyKey`: Verification key as hex string
 
 ## 💡 Code Examples
 
@@ -154,7 +168,7 @@ val walletConnectUri = "wc:...@2?relay-protocol=...&symKey=..."
 ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(walletConnectUri)
 ```
 
-### 4) Present create/recover actions popup
+### 5) Present create/recover actions popup
 
 ```kotlin
 ConcordiumIDAppPopup.invokeIdAppActionsPopup(
@@ -182,6 +196,34 @@ fun showKeys(seed: String) {
     println("signingKey=${keys.signingKey}")
 }
 ```
+
+### 4) Fetch key accounts from public key
+
+```kotlin
+import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
+import com.concordium.idapp.sdk.api.model.KeyAccount
+import com.concordium.sdk.crypto.wallet.Network
+import kotlinx.coroutines.runBlocking
+
+fun fetchAccounts(publicKey: String) {
+    runBlocking {
+        val keyAccounts: Array<KeyAccount> = ConcordiumIDAppSDK.getKeyAccounts(
+            publicKey = publicKey,
+            network = Network.MAINNET
+        )
+        
+        keyAccounts.forEach { account ->
+            println("Address: ${account.address}")
+            println("Credential Index: ${account.credentialIndex}")
+            println("Key Index: ${account.keyIndex}")
+            println("Is Simple Account: ${account.isSimpleAccount}")
+            println("Public Key Scheme: ${account.publicKey.schemeId}")
+            println("Verify Key: ${account.publicKey.verifyKey}")
+            println("---")
+        }
+    }
+}
+```
 ## Cleanup
 
 When you're done using the SDK, make sure to clean up resources:
@@ -195,14 +237,16 @@ ConcordiumIDAppSDK.clear()
 The SDK seamlessly integrates with both production and testing environments:
 
 ### Mainnet
-- **URL**: `https://grpc.mainnet.concordium.software`
+- **gRPC URL**: `grpc.mainnet.concordium.software:20000`
+- **Wallet Proxy**: `https://wallet-proxy.mainnet.concordium.com`
 - **Use Case**: Production deployments
-- **Default Port**: `20000`
 
 ### Testnet
-- **URL**: `grpc.testnet.concordium.com`
+- **gRPC URL**: `grpc.testnet.concordium.com:20000`
+- **Wallet Proxy**: `https://wallet-proxy.testnet.concordium.com`
 - **Use Case**: Development and testing
-- **Default Port**: `20000`
+
+**Note**: The wallet-proxy endpoints are used by the `getKeyAccounts` function to retrieve account information associated with public keys.
 
 ## 📦 Dependencies
 
@@ -285,4 +329,6 @@ Need help? We're here for you!
 ## ⚠️ Important Notes
 - Always call `ConcordiumIDAppSDK.initialize(context)` before any other function.
 - `signAndSubmit` parses the `unsignedCdiStr` JSON; ensure it is valid. The function will throw if parsing fails.
-- Network calls use the Concordium Java/Kotlin client; ensure correct network selection (`Network.MAINNET` vs `Network.TESTNET`) and permissions.
+- `getKeyAccounts` is a suspend function and must be called from a coroutine or another suspend function.
+- Network calls use the Concordium Java/Kotlin client and wallet-proxy APIs; ensure correct network selection (`Network.MAINNET` vs `Network.TESTNET`) and internet permissions.
+- The SDK requires `INTERNET` permission for wallet-proxy API calls.
