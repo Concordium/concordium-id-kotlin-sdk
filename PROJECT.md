@@ -39,7 +39,7 @@ com.concordium.idapp.sdk
 │   ├── model/
 │        └── CCDAccountKeyPair     # Account keys
 │   ├── ConcordiumIDAppSDK         # Core blockchain operations
-│   └── ConcordiumIDAppPopup       # UI components for create/recover/deeplink invoke 
+│   └── ConcordiumIDAppPopup       # UI components for create/deeplink invoke 
 └── ui/                            # Ready-to-use UI components
 ```
 

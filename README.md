@@ -113,7 +113,7 @@ Core functionality for blockchain interactions:
 ### 2. 🖼 ConcordiumIDAppPopup
 UI components and flows for user interactions:
    - `invokeIdAppDeepLinkPopup`: Launch WalletConnect flows
-   - `invokeIdAppActionsPopup`: Present account creation/recovery options
+   - `invokeIdAppActionsPopup`: Present account creation options
    - `closePopup`: Dismiss active popups
 
 ### 3. 🔑 Data Models
@@ -168,13 +168,12 @@ val walletConnectUri = "wc:...@2?relay-protocol=...&symKey=..."
 ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(walletConnectUri)
 ```
 
-### 5) Present create/recover actions popup
+### 5) Present create account popup
 
 ```kotlin
 ConcordiumIDAppPopup.invokeIdAppActionsPopup(
     walletConnectSessionTopic = "abcd1234...",
-    onCreateAccount = { /* handle create */ },
-    onRecoverAccount = { /* handle recover */ },
+    onCreateAccount = { /* handle create account */ },
 )
 ```
 
