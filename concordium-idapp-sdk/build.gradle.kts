@@ -84,7 +84,7 @@ publishing {
                 
                 scm {
                     connection.set("scm:git:git://github.com/Concordium/concordium-id-kotlin-sdk.git")
-                    developerConnection.set("scm:git:ssh://github.com:Concordium/concordium-id-kotlin-sdk.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/Concordium/concordium-id-kotlin-sdk.git")
                     url.set("https://github.com/Concordium/concordium-id-kotlin-sdk")
                 }
             }
@@ -112,9 +112,13 @@ signing {
     val signingKey = System.getenv("GPG_SIGNING_KEY")
     val signingPassphrase = System.getenv("GPG_SIGNING_PASSPHRASE")
     
-    if (signingKey != null && signingPassphrase != null) {
+    if (!signingKey.isNullOrBlank() && !signingPassphrase.isNullOrBlank()) {
         useInMemoryPgpKeys(signingKey, signingPassphrase)
         sign(publishing.publications["release"])
+    } else {
+        // Log warning for local builds where signing isn't required
+        println("⚠️  GPG signing credentials not found - artifacts will not be signed")
+        println("   This is expected for local builds. Signing is only required for publishing.")
     }
 }
 
