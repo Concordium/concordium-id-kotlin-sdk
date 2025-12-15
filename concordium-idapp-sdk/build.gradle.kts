@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.maven.publish)
+    signing
 }
 
 android {
@@ -38,6 +39,16 @@ android {
 group = "com.concordium.sdk"
 version = "0.0.2"
 
+// Generate sources jar
+android {
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
 publishing {
     publications {
         create<MavenPublication>("release") {
@@ -48,10 +59,62 @@ publishing {
             afterEvaluate {
                 from(components["release"])
             }
+
+            pom {
+                name.set("Concordium IDApp SDK for Android")
+                description.set("Android SDK for seamless integration with Concordium blockchain functionality, providing tools for account management, transaction signing, and secure interactions.")
+                url.set("https://github.com/Concordium/concordium-id-kotlin-sdk")
+                
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/LICENSE")
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id.set("concordium")
+                        name.set("Concordium")
+                        email.set("developers@concordium.com")
+                        organization.set("Concordium")
+                        organizationUrl.set("https://concordium.com")
+                    }
+                }
+                
+                scm {
+                    connection.set("scm:git:git://github.com/Concordium/concordium-id-kotlin-sdk.git")
+                    developerConnection.set("scm:git:ssh://github.com:Concordium/concordium-id-kotlin-sdk.git")
+                    url.set("https://github.com/Concordium/concordium-id-kotlin-sdk")
+                }
+            }
         }
     }
+    
     repositories {
+        maven {
+            name = "sonatype"
+            url = if (project.version.toString().endsWith("SNAPSHOT")) {
+                uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            } else {
+                uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            }
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_CENTRAL_TOKEN")
+            }
+        }
         mavenLocal()
+    }
+}
+
+signing {
+    val signingKey = System.getenv("GPG_SIGNING_KEY")
+    val signingPassphrase = System.getenv("GPG_SIGNING_PASSPHRASE")
+    
+    if (signingKey != null && signingPassphrase != null) {
+        useInMemoryPgpKeys(signingKey, signingPassphrase)
+        sign(publishing.publications["release"])
     }
 }
 
