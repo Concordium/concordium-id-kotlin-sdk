@@ -45,7 +45,7 @@ Example (Kotlin DSL):
 
 ```kotlin
 dependencies {
-    implementation("com.concordium.sdk:concordium-idapp-sdk:0.0.1")
+    implementation("com.concordium.sdk:concordium-idapp-sdk:0.0.2")
 }
 ```
 

@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.maven.publish)
-    signing
+    id("signing")
 }
 
 android {
@@ -55,23 +55,21 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-
             afterEvaluate {
                 from(components["release"])
             }
-
             pom {
                 name.set("Concordium IDApp SDK for Android")
                 description.set("Android SDK for seamless integration with Concordium blockchain functionality, providing tools for account management, transaction signing, and secure interactions.")
                 url.set("https://github.com/Concordium/concordium-id-kotlin-sdk")
-                
+
                 licenses {
                     license {
                         name.set("Apache License 2.0")
                         url.set("https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/LICENSE")
                     }
                 }
-                
+
                 developers {
                     developer {
                         id.set("concordium")
@@ -81,7 +79,7 @@ publishing {
                         organizationUrl.set("https://concordium.com")
                     }
                 }
-                
+
                 scm {
                     connection.set("scm:git:git://github.com/Concordium/concordium-id-kotlin-sdk.git")
                     developerConnection.set("scm:git:ssh://git@github.com/Concordium/concordium-id-kotlin-sdk.git")
@@ -90,7 +88,7 @@ publishing {
             }
         }
     }
-    
+
     repositories {
         maven {
             name = "sonatype"
@@ -111,12 +109,12 @@ publishing {
 signing {
     val signingKey = System.getenv("GPG_SIGNING_KEY")
     val signingPassphrase = System.getenv("GPG_SIGNING_PASSPHRASE")
-    
+
     if (!signingKey.isNullOrBlank() && !signingPassphrase.isNullOrBlank()) {
         useInMemoryPgpKeys(signingKey, signingPassphrase)
         sign(publishing.publications["release"])
     } else {
-        // Log warning for local builds where signing isn't required
+        // Log a friendly warning for local builds / CI without signing
         println("⚠️  GPG signing credentials not found - artifacts will not be signed")
         println("   This is expected for local builds. Signing is only required for publishing.")
     }
