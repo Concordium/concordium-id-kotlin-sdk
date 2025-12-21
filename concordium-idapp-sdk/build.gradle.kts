@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.maven.publish)
+    id("signing")
 }
 
 android {
@@ -52,6 +53,20 @@ publishing {
     }
     repositories {
         mavenLocal()
+    }
+}
+
+signing {
+    val signingKey = System.getenv("GPG_SIGNING_KEY")
+    val signingPassphrase = System.getenv("GPG_SIGNING_PASSPHRASE")
+
+    if (!signingKey.isNullOrBlank() && !signingPassphrase.isNullOrBlank()) {
+        useInMemoryPgpKeys(signingKey, signingPassphrase)
+        sign(publishing.publications["release"])
+    } else {
+        // Log a friendly warning for local builds / CI without signing
+        println("⚠️  GPG signing credentials not found - artifacts will not be signed")
+        println("   This is expected for local builds. Signing is only required for publishing.")
     }
 }
 
