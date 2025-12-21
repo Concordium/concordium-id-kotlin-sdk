@@ -147,11 +147,16 @@ private fun KeyAccountsSection(network: Network, modifier: Modifier = Modifier) 
         )
         Button(onClick = {
             scope.launch {
-                val keyAccounts = ConcordiumIDAppSDK.getKeyAccounts(
-                    publicKey = publicKey,
-                    network = network,
-                )
-                println("keyAccounts: $keyAccounts")
+                runCatching {
+                    val keyAccounts = ConcordiumIDAppSDK.getKeyAccounts(
+                        publicKey = publicKey,
+                        network = network,
+                    )
+                    println("keyAccounts: $keyAccounts")
+                }.onFailure {
+                    it.printStackTrace()
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(
