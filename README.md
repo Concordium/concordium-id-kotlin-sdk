@@ -256,8 +256,11 @@ The SDK is built with industry-standard technologies:
 
 ## 📋 Release Guidelines
 
-### Creating a New Release
-Follow these steps to publish a new version of the SDK:
+This project uses automated workflows to publish releases to Maven Central. There are two types of releases:
+
+### 🚀 Automated Release Publishing
+
+**Official Releases** are automatically published when version tags are pushed:
 
 1. Ensure you are on the `main` branch and it is up to date:
    ```bash
@@ -278,30 +281,55 @@ Follow these steps to publish a new version of the SDK:
    ```bash
    git add concordium-idapp-sdk/build.gradle.kts
    git commit -m "Bump version to x.y.z"
+   git push origin main
    ```
 
-5. Create and push a new tag:
+5. Create and push a new tag to trigger the automated release:
    ```bash
    git tag -a vx.y.z -m "Release version x.y.z"
    git push origin main --tags
    ```
 
-6. Create a release on GitHub:
-   - Go to the repository's Releases page
-   - Click "Create a new release"
-   - Select the tag you just created
-   - Title: "Release vx.y.z"
-   - Add release notes describing the changes
-   - Attach any relevant binaries or documentation
+6. **Automated Process**: The GitHub Actions workflow will:
+   - Build and test the SDK
+   - Publish to Maven Central with GPG signing
+   - Create a GitHub release with release notes
+   - Provide verification links
 
-Notes:
-- Replace x.y.z with the actual version number
-- Always create releases from the `main` branch
-- Ensure all changes are properly documented
-- Follow semantic versioning guidelines:
-  - MAJOR: Breaking changes
-  - MINOR: New features (backwards compatible)
-  - PATCH: Bug fixes (backwards compatible)
+**Manual Release Dispatch** is available for emergency releases:
+
+1. Go to the repository's Actions tab
+2. Select "Publish Android SDK to Maven Central" workflow
+3. Click "Run workflow"
+4. Enter the desired version (e.g., "1.0.1")
+5. Click "Run workflow" to start the process
+
+### 📦 Snapshot Releases
+
+**Development Snapshots** are automatically published on every push to `main`:
+- Triggers when changes are made to SDK code, Gradle files, or build scripts
+- Appends `-SNAPSHOT` suffix to the current version
+- Available immediately for testing new features
+- Use in development: `implementation("com.concordium.sdk:concordium-idapp-sdk:x.y.z-SNAPSHOT")`
+
+### 🔐 Release Requirements
+
+- **Environment**: All releases use the `release` environment with required reviewers
+- **Credentials**: Maven Central and GPG signing credentials are securely managed
+- **Verification**: Each release includes verification links to Maven Central
+
+### 📋 Semantic Versioning Guidelines
+
+- **MAJOR**: Breaking changes that require code updates
+- **MINOR**: New features (backwards compatible)
+- **PATCH**: Bug fixes (backwards compatible)
+
+### 📊 Release Status
+
+Monitor release progress:
+- **GitHub Actions**: Check workflow status in the Actions tab
+- **Maven Central**: Verify publication at [Maven Central Search](https://central.sonatype.com/artifact/com.concordium.sdk/concordium-idapp-sdk)
+- **GitHub Releases**: View release notes and documentation
 
 ## 🤝 Contributing
 
