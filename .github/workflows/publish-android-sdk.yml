@@ -77,7 +77,7 @@ jobs:
         ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
         ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
       run: |
-        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToSonatypeRepository
+        ./gradlew :concordium-idapp-sdk:publishToMavenCentral
 
     # Create GitHub release for tag-triggered builds only
     - name: Create GitHub Release
