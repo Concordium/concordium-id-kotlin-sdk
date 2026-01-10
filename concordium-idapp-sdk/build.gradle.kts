@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.maven.publish)
-    id("signing")
 }
 
 android {
@@ -39,84 +38,40 @@ android {
 group = "com.concordium.sdk"
 version = "0.0.2"
 
-// Generate sources jar
-android {
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
-}
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    coordinates(
+        groupId = project.group.toString(),
+        artifactId = project.name,
+        version = project.version.toString()
+    )
 
-publishing {
-    publications {
-        create<MavenPublication>("release") {
-            groupId = project.group.toString()
-            artifactId = project.name
-            version = project.version.toString()
-            afterEvaluate {
-                from(components["release"])
-            }
-            pom {
-                name.set("Concordium IDApp SDK for Android")
-                description.set("Android SDK for seamless integration with Concordium blockchain functionality, providing tools for account management, transaction signing, and secure interactions.")
-                url.set("https://github.com/Concordium/concordium-id-kotlin-sdk")
-
-                licenses {
-                    license {
-                        name.set("Apache License 2.0")
-                        url.set("https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/LICENSE")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("concordium")
-                        name.set("Concordium")
-                        email.set("developers@concordium.com")
-                        organization.set("Concordium")
-                        organizationUrl.set("https://concordium.com")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/Concordium/concordium-id-kotlin-sdk.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/Concordium/concordium-id-kotlin-sdk.git")
-                    url.set("https://github.com/Concordium/concordium-id-kotlin-sdk")
-                }
+    pom {
+        name.set("Concordium IDApp SDK for Android")
+        description.set("The Concordium IDApp SDK enables Android developers to seamlessly integrate Concordium blockchain functionality into their applications.")
+        inceptionYear.set("2025")
+        url.set("https://github.com/Concordium/concordium-id-kotlin-sdk/")
+        licenses {
+            license {
+                name.set("Apache License 2.0")
+                url.set("https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/LICENSE")
             }
         }
-    }
-
-    repositories {
-        maven {
-            name = "sonatype"
-            url = if (project.version.toString().endsWith("SNAPSHOT")) {
-                uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            } else {
-                uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            }
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_CENTRAL_TOKEN")
+        developers {
+            developer {
+                id.set("concordium")
+                name.set("Concordium")
+                email.set("developers@concordium.com")
+                organization.set("Concordium")
+                organizationUrl.set("https://concordium.com")
             }
         }
-        mavenLocal()
-    }
-}
-
-signing {
-    val signingKey = System.getenv("GPG_SIGNING_KEY")
-    val signingPassphrase = System.getenv("GPG_SIGNING_PASSPHRASE")
-
-    if (!signingKey.isNullOrBlank() && !signingPassphrase.isNullOrBlank()) {
-        useInMemoryPgpKeys(signingKey, signingPassphrase)
-        sign(publishing.publications["release"])
-    } else {
-        // Log a friendly warning for local builds / CI without signing
-        println("⚠️  GPG signing credentials not found - artifacts will not be signed")
-        println("   This is expected for local builds. Signing is only required for publishing.")
+        scm {
+            connection.set("scm:git:git://github.com/Concordium/concordium-id-kotlin-sdk.git")
+            developerConnection.set("scm:git:ssh://git@github.com/Concordium/concordium-id-kotlin-sdk.git")
+            url.set("https://github.com/Concordium/concordium-id-kotlin-sdk")
+        }
     }
 }
 
