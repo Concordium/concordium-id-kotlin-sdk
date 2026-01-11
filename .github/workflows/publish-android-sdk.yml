@@ -1,6 +1,6 @@
-# Publishes official Concordium Android SDK releases to Maven Central
+# Publishes official Concordium IDApp SDK releases to Maven Central
 # Triggers: manual dispatch or version tag push (v1.0.0, etc.)
-name: Publish Android SDK to Maven Central
+name: Release IDApp SDK to Maven Central
 
 # Two trigger methods: manual with version input, or automatic on version tags
 on:
@@ -21,6 +21,7 @@ env:
 
 jobs:
   publish:
+
     runs-on: ubuntu-latest
     # 'release' environment provides security gates and required reviewers
     environment: release
@@ -105,7 +106,7 @@ jobs:
         echo "🔐 Publishing to Maven Central with version: ${{ steps.extract_version.outputs.VERSION }}"
         echo "📝 Repository: Sonatype OSSRH"
         echo "🔗 Endpoint: https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-        echo "👤 Username: ${MAVEN_USERNAME}..." # Show first 5 chars only
+        echo "👤 Username: ${MAVEN_USERNAME:0:5}..." # Show first 5 chars only
         echo "🔑 Token present: $([ -n "$MAVEN_CENTRAL_TOKEN" ] && echo 'yes' || echo 'no')"
         
         # Run with verbose logging to see HTTP requests
@@ -124,10 +125,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
-        name: "Android SDK v${{ steps.extract_version.outputs.VERSION }}"
+        name: "IDApp SDK v${{ steps.extract_version.outputs.VERSION }}"
         # Release notes with Maven dependency and docs
         body: |
-          ## 🚀 Android SDK Release v${{ steps.extract_version.outputs.VERSION }}
+          ## 🚀 Concordium IDApp SDK Release v${{ steps.extract_version.outputs.VERSION }}
           
           ### 📦 Maven Dependency
           ```kotlin
@@ -136,7 +137,7 @@ jobs:
           
           ### 📚 Documentation
           - [README](https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/README.md)
-          - [Release Notes](https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/RELEASE_NOTES.md)
+          - [CHANGELOG](https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/CHANGELOG.md)
           
           ---
           Published to [Maven Central](https://central.sonatype.com/artifact/com.concordium.sdk/concordium-idapp-sdk/${{ steps.extract_version.outputs.VERSION }})
