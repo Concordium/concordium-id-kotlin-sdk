@@ -72,12 +72,11 @@ jobs:
     - name: Publish to Maven Central
       env:
         ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-        ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
-        ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
-        ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+        ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SONATYPE_PKEY }}
+        ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SONATYPE_PHRASE }}
       run: |
-        ./gradlew :concordium-idapp-sdk:publishToMavenCentral
+        ./gradlew :concordium-idapp-sdk:publishAndReleaseToMavenCentral
 
     # Create GitHub release for tag-triggered builds only
     - name: Create GitHub Release
@@ -104,10 +103,10 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        echo "📝 Repository: Sonatype OSSRH"
+        echo "🔗 Endpoint: https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     # Post-publish confirmation and verification link
     - name: Post-publish verification
       run: |
         echo "✅ Successfully published com.concordium.sdk:concordium-idapp-sdk:${{ steps.extract_version.outputs.VERSION }} to Maven Central"
-        echo "🔍 Check publication status at: https://central.sonatype.com/artifact/com.concordium.sdk/concordium-idapp-sdk/${{ steps.extract_version.outputs.VERSION }}"
+        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToCentralRepository -i --stacktrace 2>&1 | tee publish.log
