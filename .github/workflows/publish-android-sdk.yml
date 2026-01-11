@@ -71,14 +71,14 @@ jobs:
     # Publish to Maven Central with GPG signing
     - name: Publish to Maven Central
       env:
-        # Maven Central credentials
+        # Maven Central Portal credentials
         MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
         # GPG signing for artifact verification
         GPG_SIGNING_KEY: ${{ secrets.SONATYPE_PKEY }}
         GPG_SIGNING_PASSPHRASE: ${{ secrets.SONATYPE_PHRASE }}
       run: |
-        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToSonatypeRepository
+        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToCentralRepository
 
     # Create GitHub release for tag-triggered builds only
     - name: Create GitHub Release
