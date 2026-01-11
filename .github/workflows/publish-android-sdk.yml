@@ -1,6 +1,6 @@
-# Publishes official Concordium Android SDK releases to Maven Central
+# Publishes official Concordium IDApp SDK releases to Maven Central
 # Triggers: manual dispatch or version tag push (v1.0.0, etc.)
-name: Publish Android SDK to Maven Central
+name: Publish IDApp SDK to Maven Central
 
 # Two trigger methods: manual with version input, or automatic on version tags
 on:
@@ -59,6 +59,8 @@ jobs:
     - name: Update version in build.gradle.kts
       run: |
         sed -i 's/version = ".*"/version = "${{ steps.extract_version.outputs.VERSION }}"/' concordium-idapp-sdk/build.gradle.kts
+        # Verify the change
+        grep "^version = " concordium-idapp-sdk/build.gradle.kts
 
     # Make gradlew executable
     - name: Grant execute permission for gradlew
@@ -68,6 +70,27 @@ jobs:
     - name: Build and test
       run: ./gradlew :concordium-idapp-sdk:clean :concordium-idapp-sdk:build :concordium-idapp-sdk:test
 
+    # Verify credentials are available
+    - name: Verify publishing credentials
+      run: |
+        if [ -z "${{ secrets.MAVEN_CENTRAL_USERNAME }}" ]; then
+          echo "❌ ERROR: MAVEN_CENTRAL_USERNAME secret is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.MAVEN_CENTRAL_TOKEN }}" ]; then
+          echo "❌ ERROR: MAVEN_CENTRAL_TOKEN secret is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.SONATYPE_PKEY }}" ]; then
+          echo "❌ ERROR: SONATYPE_PKEY secret is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.SONATYPE_PHRASE }}" ]; then
+          echo "❌ ERROR: SONATYPE_PHRASE secret is not set"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+
     # Publish to Maven Central with GPG signing
     - name: Publish to Maven Central
       env:
@@ -76,7 +99,19 @@ jobs:
         ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SONATYPE_PKEY }}
         ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SONATYPE_PHRASE }}
       run: |
-        ./gradlew :concordium-idapp-sdk:publishAndReleaseToMavenCentral
+        echo "🔐 Publishing to Maven Central with version: ${{ steps.extract_version.outputs.VERSION }}"
+        echo "📝 Repository: Maven Central Portal"
+        echo "🔗 Endpoint: https://central.sonatype.com/publishing/deployments"
+        
+        # Run with verbose logging to see HTTP requests
+        ./gradlew :concordium-idapp-sdk:publishAndReleaseToMavenCentral -i --stacktrace 2>&1 | tee publish.log
+        
+        # Check if successful
+        if grep -q "FAILED" publish.log; then
+          echo "❌ Publishing failed - check logs above"
+          exit 1
+        fi
+        echo "✅ Publishing completed successfully"
 
     # Create GitHub release for tag-triggered builds only
     - name: Create GitHub Release
@@ -84,10 +119,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
-        name: "Android SDK v${{ steps.extract_version.outputs.VERSION }}"
+        name: "IDApp SDK v${{ steps.extract_version.outputs.VERSION }}"
         # Release notes with Maven dependency and docs
         body: |
-          ## 🚀 Android SDK Release v${{ steps.extract_version.outputs.VERSION }}
+          ## 🚀 Concordium IDApp SDK Release v${{ steps.extract_version.outputs.VERSION }}
           
           ### 📦 Maven Dependency
           ```kotlin
@@ -96,17 +131,17 @@ jobs:
           
           ### 📚 Documentation
           - [README](https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/README.md)
-          - [Release Notes](https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/RELEASE_NOTES.md)
+          - [CHANGELOG](https://github.com/Concordium/concordium-id-kotlin-sdk/blob/main/CHANGELOG.md)
           
           ---
           Published to [Maven Central](https://central.sonatype.com/artifact/com.concordium.sdk/concordium-idapp-sdk/${{ steps.extract_version.outputs.VERSION }})
         draft: false
         prerelease: false
       env:
-        echo "📝 Repository: Sonatype OSSRH"
-        echo "🔗 Endpoint: https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     # Post-publish confirmation and verification link
     - name: Post-publish verification
       run: |
         echo "✅ Successfully published com.concordium.sdk:concordium-idapp-sdk:${{ steps.extract_version.outputs.VERSION }} to Maven Central"
-        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToCentralRepository -i --stacktrace 2>&1 | tee publish.log
+        echo "🔍 Check publication status at: https://central.sonatype.com/artifact/com.concordium.sdk/concordium-idapp-sdk/${{ steps.extract_version.outputs.VERSION }}"
