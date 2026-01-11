@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.maven.publish)
+    id("maven-publish")
     id("signing")
 }
 
@@ -91,12 +91,8 @@ publishing {
 
     repositories {
         maven {
-            name = "sonatype"
-            url = if (project.version.toString().endsWith("SNAPSHOT")) {
-                uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            } else {
-                uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            }
+            name = "central"
+            url = uri("https://central.sonatype.com/api/v1/publisher")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_CENTRAL_TOKEN")
