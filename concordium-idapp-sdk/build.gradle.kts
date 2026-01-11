@@ -92,12 +92,11 @@ publishing {
     repositories {
         maven {
             name = "central"
-            // Use Sonatype OSSRH endpoint for release publishing
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            // Use Sonatype OSSRH endpoint
+            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
 
-            // Sonatype token-based authentication
-            val mavenUsername = System.getenv("MAVEN_USERNAME")?.trim()
-            val mavenPassword = System.getenv("MAVEN_CENTRAL_TOKEN")?.trim()
+            val mavenUsername = System.getenv("MAVEN_USERNAME")
+            val mavenPassword = System.getenv("MAVEN_CENTRAL_TOKEN")
 
             if (!mavenUsername.isNullOrBlank() && !mavenPassword.isNullOrBlank()) {
                 credentials {

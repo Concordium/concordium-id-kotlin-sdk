@@ -104,7 +104,7 @@ jobs:
       run: |
         echo "🔐 Publishing to Maven Central with version: ${{ steps.extract_version.outputs.VERSION }}"
         echo "📝 Repository: Sonatype OSSRH"
-        echo "🔗 Endpoint: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        echo "🔗 Endpoint: https://oss.sonatype.org/service/local/staging/deploy/maven2/"
         echo "👤 Username: ${MAVEN_USERNAME}..." # Show first 5 chars only
         echo "🔑 Token present: $([ -n "$MAVEN_CENTRAL_TOKEN" ] && echo 'yes' || echo 'no')"
         
