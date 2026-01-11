@@ -68,6 +68,27 @@ jobs:
     - name: Build and test
       run: ./gradlew :concordium-idapp-sdk:clean :concordium-idapp-sdk:build :concordium-idapp-sdk:test
 
+    # Verify credentials are available
+    - name: Verify publishing credentials
+      run: |
+        if [ -z "${{ secrets.MAVEN_CENTRAL_USERNAME }}" ]; then
+          echo "❌ ERROR: MAVEN_CENTRAL_USERNAME secret is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.MAVEN_CENTRAL_TOKEN }}" ]; then
+          echo "❌ ERROR: MAVEN_CENTRAL_TOKEN secret is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.SONATYPE_PKEY }}" ]; then
+          echo "❌ ERROR: SONATYPE_PKEY secret is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.SONATYPE_PHRASE }}" ]; then
+          echo "❌ ERROR: SONATYPE_PHRASE secret is not set"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+
     # Publish to Maven Central with GPG signing
     - name: Publish to Maven Central
       env:
@@ -78,7 +99,11 @@ jobs:
         GPG_SIGNING_KEY: ${{ secrets.SONATYPE_PKEY }}
         GPG_SIGNING_PASSPHRASE: ${{ secrets.SONATYPE_PHRASE }}
       run: |
-        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToCentralRepository
+        echo "🔐 Publishing to Maven Central with version: ${{ steps.extract_version.outputs.VERSION }}"
+        echo "📝 Repository: Sonatype OSSRH"
+        echo "🔗 Endpoint: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToCentralRepository -i 2>&1 | tee publish.log
+        echo "✅ Publishing completed"
 
     # Create GitHub release for tag-triggered builds only
     - name: Create GitHub Release
