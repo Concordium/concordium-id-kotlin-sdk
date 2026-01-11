@@ -58,7 +58,10 @@ jobs:
     # Update SDK version in build.gradle.kts
     - name: Update version in build.gradle.kts
       run: |
-        sed -i 's/version = ".*"/version = "${{ steps.extract_version.outputs.VERSION }}"/' concordium-idapp-sdk/build.gradle.kts
+        # Use escaped quotes to avoid version number appending issues
+        sed -i.bak "s/^version = .*/version = \"${{ steps.extract_version.outputs.VERSION }}\"/" concordium-idapp-sdk/build.gradle.kts
+        # Verify the change
+        grep "^version = " concordium-idapp-sdk/build.gradle.kts
 
     # Make gradlew executable
     - name: Grant execute permission for gradlew
@@ -102,8 +105,18 @@ jobs:
         echo "🔐 Publishing to Maven Central with version: ${{ steps.extract_version.outputs.VERSION }}"
         echo "📝 Repository: Sonatype OSSRH"
         echo "🔗 Endpoint: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToCentralRepository -i 2>&1 | tee publish.log
-        echo "✅ Publishing completed"
+        echo "👤 Username: ${MAVEN_USERNAME}..." # Show first 5 chars only
+        echo "🔑 Token present: $([ -n "$MAVEN_CENTRAL_TOKEN" ] && echo 'yes' || echo 'no')"
+        
+        # Run with verbose logging to see HTTP requests
+        ./gradlew :concordium-idapp-sdk:publishReleasePublicationToCentralRepository -i --stacktrace 2>&1 | tee publish.log
+        
+        # Check if successful
+        if grep -q "publishReleasePublicationToCentralRepository FAILED" publish.log; then
+          echo "❌ Publishing failed - check logs above"
+          exit 1
+        fi
+        echo "✅ Publishing completed successfully"
 
     # Create GitHub release for tag-triggered builds only
     - name: Create GitHub Release

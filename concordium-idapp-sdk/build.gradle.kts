@@ -95,9 +95,9 @@ publishing {
             // Use Sonatype OSSRH endpoint for release publishing
             url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
 
-            // Only set credentials if environment variables are present
-            val mavenUsername = System.getenv("MAVEN_USERNAME")
-            val mavenPassword = System.getenv("MAVEN_CENTRAL_TOKEN")
+            // Sonatype token-based authentication
+            val mavenUsername = System.getenv("MAVEN_USERNAME")?.trim()
+            val mavenPassword = System.getenv("MAVEN_CENTRAL_TOKEN")?.trim()
 
             if (!mavenUsername.isNullOrBlank() && !mavenPassword.isNullOrBlank()) {
                 credentials {
