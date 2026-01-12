@@ -16,8 +16,27 @@ The Concordium IDApp SDK enables Android developers to seamlessly integrate Conc
 ## 📦 Package Information
 - **Module**: `concordium-idapp-sdk`
 - **Latest Version**: [Check releases](https://github.com/Concordium/concordium-id-kotlin-sdk/releases)
+- **Maven Central**: [View on Maven Central](https://central.sonatype.com/artifact/com.concordium.sdk/concordium-idapp-sdk)
 
 ## 🔧 Installation
+
+### Option 0: Maven Central (recommended for production)
+Add the dependency directly from Maven Central. The latest published version is available at [Maven Central Search](https://search.maven.org/artifact/com.concordium.sdk/concordium-idapp-sdk).
+
+Example (Kotlin DSL):
+
+```kotlin
+repositories {
+    google()
+    mavenCentral()
+}
+
+dependencies {
+    implementation("com.concordium.sdk:concordium-idapp-sdk:1.0.0")
+}
+```
+
+For the latest version, check the [Maven Central artifact page](https://central.sonatype.com/artifact/com.concordium.sdk/concordium-idapp-sdk/1.0.0/overview).
 
 ### Option 1: Publish to Maven Local (local development)
 If you want to test the SDK as a binary dependency without pushing to a remote repository, publish it to your local Maven cache and consume it from there.
