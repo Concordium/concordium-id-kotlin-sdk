@@ -162,7 +162,9 @@ internal fun QRCodeSection(
 
 @Composable
 internal fun IdVerificationSection(
+    isProofRequest: Boolean,
     onCreateAccount: () -> Unit,
+    onGenerateProof: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -181,8 +183,10 @@ internal fun IdVerificationSection(
             textAlign = TextAlign.Center,
         )
         CtaContainer(
-            ctaText = stringResource(R.string.create_new_account),
-            onClick = onCreateAccount
+            ctaText = stringResource(
+                if (isProofRequest) R.string.generate_proof else R.string.create_new_account
+            ),
+            onClick = if (isProofRequest) onGenerateProof else onCreateAccount
         )
     }
 }

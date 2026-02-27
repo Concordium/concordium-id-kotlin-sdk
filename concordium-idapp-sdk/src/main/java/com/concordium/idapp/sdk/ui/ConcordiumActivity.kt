@@ -31,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import com.concordium.idapp.sdk.R
 import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.common.Constants
+import com.concordium.idapp.sdk.common.Constants.REQUEST_VP_V1
 import com.concordium.idapp.sdk.common.handleAppDeepLink
 import com.concordium.idapp.sdk.ui.model.StepItem
 import com.concordium.idapp.sdk.ui.model.UiState
@@ -47,16 +48,19 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
         const val KEY_STEP = "key_step"
         const val KEY_CODE = "key_code"
         const val KEY_URI = "key_uri"
+        const val KEY_REQUEST_METHOD = "key_request_method"
 
         fun createIntent(
             context: Context,
             step: String,
             code: String? = null,
             walletConnectUri: String? = null,
+            requestMethod: String? = null,
         ) = Intent(context, ConcordiumSdkActivity::class.java).apply {
             putExtra(KEY_STEP, step)
             putExtra(KEY_CODE, code)
             putExtra(KEY_URI, walletConnectUri)
+            putExtra(KEY_REQUEST_METHOD, requestMethod)
             addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         }
     }
@@ -86,7 +90,8 @@ internal class ConcordiumSdkActivity : ComponentActivity() {
                     SdkBottomSheet(
                         uiState = it,
                         onPopupClose = { this@ConcordiumSdkActivity.finish() },
-                        onCreateAccount = { ConcordiumIDAppPopup.idAppActionsCallbackHolder.invoke() },
+                        onCreateAccount = { ConcordiumIDAppPopup.onCreateAccountCallbackHolder.invoke() },
+                        onGenerateProof = { ConcordiumIDAppPopup.onGenerateProofCallbackHolder.invoke() },
                     )
                 }
             }
@@ -127,6 +132,7 @@ internal fun SdkBottomSheet(
     uiState: UiState,
     onPopupClose: () -> Unit,
     onCreateAccount: () -> Unit,
+    onGenerateProof: () -> Unit,
     modifier: Modifier = Modifier,
     showBottomSheet: Boolean = true,
 ) {
@@ -149,6 +155,7 @@ internal fun SdkBottomSheet(
                 onPopupClose = onPopupClose,
                 modifier = modifier,
                 onCreateAccount = onCreateAccount,
+                onGenerateProof = onGenerateProof,
             )
         }
     }
@@ -160,6 +167,7 @@ internal fun SdkScreen(
     onPopupClose: () -> Unit,
     modifier: Modifier = Modifier,
     onCreateAccount: () -> Unit = {},
+    onGenerateProof: () -> Unit = {},
 ) {
     Column(
         modifier
@@ -173,7 +181,9 @@ internal fun SdkScreen(
         ContentSection(
             userJourneyStep = uiState.journeyStep,
             walletConnectUri = uiState.walletConnectUri,
+            requestMethod = uiState.requestMethod,
             onCreateAccount = onCreateAccount,
+            onGenerateProof = onGenerateProof,
         )
         BottomSection(
             step = uiState.journeyStep,
@@ -186,7 +196,9 @@ internal fun SdkScreen(
 internal fun ContentSection(
     userJourneyStep: UserJourneyStep,
     walletConnectUri: String = "",
+    requestMethod: String = "",
     onCreateAccount: () -> Unit = {},
+    onGenerateProof: () -> Unit = {},
 ) {
     val context = LocalContext.current
     when (userJourneyStep) {
@@ -197,7 +209,9 @@ internal fun ContentSection(
         }
 
         IdVerification -> IdVerificationSection(
+            isProofRequest = requestMethod == REQUEST_VP_V1,
             onCreateAccount = onCreateAccount,
+            onGenerateProof = onGenerateProof,
         )
 
         Account -> {}
@@ -253,6 +267,7 @@ private fun DeepLinkInvokePreview() {
             ),
             onPopupClose = {},
             onCreateAccount = {},
+            onGenerateProof = {},
         )
     }
 }
@@ -268,6 +283,7 @@ private fun AccountCreateInvokePreview() {
             ),
             onPopupClose = {},
             onCreateAccount = {},
+            onGenerateProof = {},
         )
     }
 }

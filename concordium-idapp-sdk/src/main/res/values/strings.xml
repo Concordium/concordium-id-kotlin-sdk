@@ -8,6 +8,7 @@
     <string name="message_complete_setup_in_id_App">Please follow and complete the account setup in the [ID\u00A0App].</string>
     <string name="message_only_after_id_verification">Only once you\'ve completed the ID Verification, choose your next step.</string>
     <string name="create_new_account">Create New Account</string>
+    <string name="generate_proof">Generate Proof</string>
     <string name="open_id_app">Open [ID\u00A0App]</string>
 
     <string name="info_text_play_store">If you don\'t have [ID\u00A0App]. Install the app then return back here to continue.</string>

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
+import com.concordium.idapp.sdk.common.Constants.REQUEST_VP_V1
 import com.concordium.idapp.sdk.app.BuildConfig
 import com.concordium.idapp.sdk.app.R
 import com.concordium.sdk.app.AppConstants.DUMMY_PUBLIC_KEY
@@ -299,6 +300,27 @@ private fun DeeplinkAndActionsSection(
         }) {
             Text(
                 text = stringResource(R.string.open_create_actions_popup),
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = {
+            runCatching {
+                ConcordiumIDAppPopup.invokeIdAppActionsPopup(
+                    walletConnectSessionTopic = BuildConfig.WC_SESSION_TOPIC,
+                    requestMethod = REQUEST_VP_V1,
+                    onGenerateProof = { println("onGenerateProof") },
+                )
+            }.onFailure {
+                it.printStackTrace()
+                Toast.makeText(
+                    context,
+                    it.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }) {
+            Text(
+                text = stringResource(R.string.open_generate_proof_popup),
             )
         }
     }

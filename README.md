@@ -132,7 +132,7 @@ Core functionality for blockchain interactions:
 ### 2. 🖼 ConcordiumIDAppPopup
 UI components and flows for user interactions:
    - `invokeIdAppDeepLinkPopup`: Launch WalletConnect flows
-   - `invokeIdAppActionsPopup`: Present account creation options
+    - `invokeIdAppActionsPopup`: Present account creation/proof options
    - `closePopup`: Dismiss active popups
 
 ### 3. 🔑 Data Models
@@ -187,7 +187,7 @@ val walletConnectUri = "wc:...@2?relay-protocol=...&symKey=..."
 ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(walletConnectUri)
 ```
 
-### 5) Present create account popup
+### 3) Present create account popup
 
 ```kotlin
 ConcordiumIDAppPopup.invokeIdAppActionsPopup(
@@ -196,7 +196,19 @@ ConcordiumIDAppPopup.invokeIdAppActionsPopup(
 )
 ```
 
-### 3) Derive account keys from a seed phrase
+### 4) Present generate proof popup
+
+```kotlin
+import com.concordium.idapp.sdk.common.Constants.REQUEST_VP_V1
+
+ConcordiumIDAppPopup.invokeIdAppActionsPopup(
+    walletConnectSessionTopic = "abcd1234...",
+    requestMethod = REQUEST_VP_V1,
+    onGenerateProof = { /* handle verifiable presentation proof generation */ },
+)
+```
+
+### 5) Derive account keys from a seed phrase
 
 ```kotlin
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
@@ -215,7 +227,7 @@ fun showKeys(seed: String) {
 }
 ```
 
-### 4) Fetch key accounts from public key
+### 6) Fetch key accounts from public key
 
 ```kotlin
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
