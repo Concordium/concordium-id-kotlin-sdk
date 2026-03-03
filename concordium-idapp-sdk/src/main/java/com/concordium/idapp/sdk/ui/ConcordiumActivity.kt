@@ -177,6 +177,7 @@ internal fun SdkScreen(
         HeaderSection(onClose = onPopupClose)
         StepperSection(
             currentStep = uiState.journeyStep,
+            requestMethod = uiState.requestMethod,
         )
         ContentSection(
             userJourneyStep = uiState.journeyStep,
@@ -238,6 +239,7 @@ internal fun BottomSection(
 
 @Composable
 internal fun StepperSection(
+    requestMethod: String = "",
     currentStep: UserJourneyStep, modifier: Modifier = Modifier,
 ) {
     StepperView(
@@ -250,7 +252,13 @@ internal fun StepperSection(
             ),
             StepItem(
                 selected = Account <= currentStep,
-                label = stringResource(R.string.step_create_account)
+                label = stringResource(
+                    if (requestMethod == REQUEST_VP_V1) {
+                        R.string.step_generate_proof
+                    } else {
+                        R.string.step_create_account
+                    }
+                )
             ),
         ),
     )

@@ -4,6 +4,7 @@
     <string name="step_connect_pair_app">Connect / Pair apps</string>
     <string name="step_complete_id_verification">Complete ID Verification</string>
     <string name="step_create_account">Create Account</string>
+    <string name="step_generate_proof">Generate Proof</string>
 
     <string name="message_complete_setup_in_id_App">Please follow and complete the account setup in the [ID\u00A0App].</string>
     <string name="message_only_after_id_verification">Only once you\'ve completed the ID Verification, choose your next step.</string>

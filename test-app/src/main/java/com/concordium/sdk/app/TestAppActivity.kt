@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
 import com.concordium.idapp.sdk.api.ConcordiumIDAppSDK
-import com.concordium.idapp.sdk.common.Constants.REQUEST_VP_V1
 import com.concordium.idapp.sdk.app.BuildConfig
 import com.concordium.idapp.sdk.app.R
 import com.concordium.sdk.app.AppConstants.DUMMY_PUBLIC_KEY
@@ -52,6 +51,8 @@ import com.concordium.sdk.app.ui.theme.ConcordiumIdAppSdkAppTheme
 import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
 import kotlinx.coroutines.launch
+
+private const val REQUEST_VP_V1 = "request_verifiable_presentation_v1"
 
 internal class TestAppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -274,9 +275,18 @@ private fun DeeplinkAndActionsSection(
         )
         Spacer(Modifier.height(24.dp))
         Button(onClick = {
-            ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-                walletConnectUri = BuildConfig.WC_URI,
-            )
+            runCatching {
+                ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+                    walletConnectUri = BuildConfig.WC_URI,
+                )
+            }.onFailure {
+                it.printStackTrace()
+                Toast.makeText(
+                    context,
+                    it.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }) {
             Text(
                 text = stringResource(R.string.open_deeplink_popup),
