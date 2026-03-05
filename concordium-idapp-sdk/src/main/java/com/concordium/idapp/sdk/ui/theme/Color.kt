@@ -7,4 +7,5 @@ internal val Blue = Color(color = 0xFF1143A7)
 internal val LightBlue = Color(color = 0x7F1143A7)
 
 internal val Black = Color(color = 0xFF0D121C)
+internal val DarkGray = Color(color = 0xFF3A3A3A)
 internal val Grayish = Color(color = 0xFFE6E6E6)

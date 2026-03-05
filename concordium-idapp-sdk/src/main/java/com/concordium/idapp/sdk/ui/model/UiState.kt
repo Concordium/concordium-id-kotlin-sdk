@@ -18,4 +18,5 @@ internal data class UiState(
     val journeyStep: UserJourneyStep,
     val codeText: String = "",
     val walletConnectUri: String = "",
+    val requestMethod: String = "",
 )

@@ -46,6 +46,7 @@ import com.concordium.idapp.sdk.common.toPixels
  import com.concordium.idapp.sdk.ui.model.StepItem
 import com.concordium.idapp.sdk.ui.theme.Black
 import com.concordium.idapp.sdk.ui.theme.Blue
+import com.concordium.idapp.sdk.ui.theme.DarkGray
 import com.concordium.idapp.sdk.ui.theme.Grayish
 import com.concordium.idapp.sdk.ui.theme.Typography
 import com.concordium.idapp.sdk.ui.theme.White
@@ -162,7 +163,9 @@ internal fun QRCodeSection(
 
 @Composable
 internal fun IdVerificationSection(
+    isProofRequest: Boolean,
     onCreateAccount: () -> Unit,
+    onGenerateProof: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -179,10 +182,13 @@ internal fun IdVerificationSection(
             text = stringResource(R.string.message_only_after_id_verification),
             style = Typography.headlineMedium,
             textAlign = TextAlign.Center,
+            color = DarkGray,
         )
         CtaContainer(
-            ctaText = stringResource(R.string.create_new_account),
-            onClick = onCreateAccount
+            ctaText = stringResource(
+                if (isProofRequest) R.string.generate_proof else R.string.create_new_account
+            ),
+            onClick = if (isProofRequest) onGenerateProof else onCreateAccount
         )
     }
 }

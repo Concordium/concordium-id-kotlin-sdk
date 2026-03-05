@@ -3,6 +3,7 @@ package com.concordium.idapp.sdk.ui
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_CODE
+import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_REQUEST_METHOD
 import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_STEP
 import com.concordium.idapp.sdk.ui.ConcordiumSdkActivity.Companion.KEY_URI
 import com.concordium.idapp.sdk.ui.model.UiState
@@ -20,12 +21,14 @@ internal class ConcordiumViewModel : ViewModel() {
         val stepData = intent.getStringExtra(KEY_STEP)
         val codeData = intent.getStringExtra(KEY_CODE).orEmpty()
         val wcUri = intent.getStringExtra(KEY_URI).orEmpty()
+        val requestMethod = intent.getStringExtra(KEY_REQUEST_METHOD).orEmpty()
 
         _uiState.update {
             UiState(
                 codeText = codeData,
                 journeyStep = UserJourneyStep.from(stepData),
                 walletConnectUri = wcUri,
+                requestMethod = requestMethod,
             )
         }
     }

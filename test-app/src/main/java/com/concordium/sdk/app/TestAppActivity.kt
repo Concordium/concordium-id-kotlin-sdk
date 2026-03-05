@@ -52,6 +52,8 @@ import com.concordium.sdk.app.ui.theme.Typography
 import com.concordium.sdk.crypto.wallet.Network
 import kotlinx.coroutines.launch
 
+private const val REQUEST_VP_V1 = "request_verifiable_presentation_v1"
+
 internal class TestAppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -273,9 +275,18 @@ private fun DeeplinkAndActionsSection(
         )
         Spacer(Modifier.height(24.dp))
         Button(onClick = {
-            ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
-                walletConnectUri = BuildConfig.WC_URI,
-            )
+            runCatching {
+                ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+                    walletConnectUri = BuildConfig.WC_URI,
+                )
+            }.onFailure {
+                it.printStackTrace()
+                Toast.makeText(
+                    context,
+                    it.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }) {
             Text(
                 text = stringResource(R.string.open_deeplink_popup),
@@ -299,6 +310,27 @@ private fun DeeplinkAndActionsSection(
         }) {
             Text(
                 text = stringResource(R.string.open_create_actions_popup),
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = {
+            runCatching {
+                ConcordiumIDAppPopup.invokeIdAppActionsPopup(
+                    walletConnectSessionTopic = BuildConfig.WC_SESSION_TOPIC,
+                    requestMethod = REQUEST_VP_V1,
+                    onGenerateProof = { println("onGenerateProof") },
+                )
+            }.onFailure {
+                it.printStackTrace()
+                Toast.makeText(
+                    context,
+                    it.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }) {
+            Text(
+                text = stringResource(R.string.open_generate_proof_popup),
             )
         }
     }
