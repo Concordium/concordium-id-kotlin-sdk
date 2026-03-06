@@ -182,9 +182,15 @@ fun submit(seedPhrase: String, unsignedCdiJson: String) {
 
 ```kotlin
 import com.concordium.idapp.sdk.api.ConcordiumIDAppPopup
+import com.concordium.idapp.sdk.common.Constants.REQUEST_VP_V1
 
 val walletConnectUri = "wc:...@2?relay-protocol=...&symKey=..."
-ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(walletConnectUri)
+
+// Optional: pass requestMethod to make the stepper show generate proof.
+ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
+    walletConnectUri = walletConnectUri,
+    requestMethod = REQUEST_VP_V1,
+)
 ```
 
 ### 3) Present create account popup

@@ -278,6 +278,7 @@ private fun DeeplinkAndActionsSection(
             runCatching {
                 ConcordiumIDAppPopup.invokeIdAppDeepLinkPopup(
                     walletConnectUri = BuildConfig.WC_URI,
+                    requestMethod = REQUEST_VP_V1,
                 )
             }.onFailure {
                 it.printStackTrace()

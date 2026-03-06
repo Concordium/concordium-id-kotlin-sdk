@@ -139,6 +139,7 @@ internal fun QRCodeSection(
             text = stringResource(R.string.message_complete_setup_in_id_App),
             style = Typography.headlineMedium,
             textAlign = TextAlign.Center,
+            color = DarkGray,
         )
         QRCodeDisplay(walletConnectUri = walletConnectUri)
         Button(
@@ -358,6 +359,7 @@ internal fun PlayStoreSection(
             text = infoText,
             style = Typography.displayMedium,
             textAlign = TextAlign.Center,
+            color = DarkGray
         )
         Image(
             modifier = Modifier.height(38.dp),
