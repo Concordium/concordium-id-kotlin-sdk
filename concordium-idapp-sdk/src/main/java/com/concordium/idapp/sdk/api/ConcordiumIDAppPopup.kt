@@ -20,12 +20,14 @@ object ConcordiumIDAppPopup {
     /**
      *  Invoke ID App Deep Link Popup
      *
-     *  @param walletConnectUri: String - Valid WalletConnect URI starting with "wc:"
+    *  @param walletConnectUri: String - Valid WalletConnect URI starting with "wc:"
+    *  @param requestMethod: String - Request type, e.g. request_verifiable_presentation_v1
      *  @throws IllegalArgumentException if URI format is invalid
      *  @throws IllegalStateException if SDK not initialized
      * */
     fun invokeIdAppDeepLinkPopup(
         walletConnectUri: String,
+        requestMethod: String = "",
     ) {
         checkForInitialization()
         require(walletConnectUri.isValiWalletConnectUri()) {
@@ -39,6 +41,7 @@ object ConcordiumIDAppPopup {
             context = context,
             step = UserJourneyStep.Connect.name,
             walletConnectUri = walletConnectUri,
+            requestMethod = requestMethod,
         ).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
